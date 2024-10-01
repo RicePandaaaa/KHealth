@@ -26,8 +26,10 @@ class Glucose_Data():
         self.readings = []
         self.process_readings()
         self.daily_readings = []
+        self.generate_daily_average_readings()
 
-        print(self.readings)
+        #print(self.readings)
+        print(self.daily_readings)
 
         self.file.close()
 
@@ -41,7 +43,7 @@ class Glucose_Data():
 
         # Put each line into self.readings
         for row in self.reader:
-            data = {"date": row[0], "level": float(row[1])}
+            data = {"date": row[0].strip(), "level": float(row[1])}
             self.readings.append(data)
 
 
@@ -67,28 +69,22 @@ class Glucose_Data():
         for that day
         """
 
-        current_date = ""
-        current_levels = []
+        # Categorize the data by dates
+        dates = {}
+
         for reading in self.readings:
-            # Get date
             date = reading["date"]
-            level = reading["level"]
+            # Check if date exists in dict
+            if date not in dates:
+                dates[date] = []
 
-            # If current date is a placeholder, put date in
-            if current_date == "":
-                current_date = date
+            # Add blood glucose level to list
+            dates[date].append(reading["level"])
 
-            # If date is different from current date, make average
-            if date != current_date:
-                average_level = sum(current_levels)/len(current_levels)
-                average_reading = {"date": current_date, "level": average_level}
-
-                # Add to self.daily_readings and update new current date and clear current levels
-                self.daily_readings.append(average_reading)
-                current_levels = []
-
-            # Add the level
-            current_levels.append(level)
+        # Add data to self.daily_readings
+        for date in dates:
+            average_level = sum(dates[date])/len(dates[date])
+            self.daily_readings.append({"date": date, "level": average_level})
 
 
 # For testing
