@@ -23,7 +23,7 @@ class Glucose_Data():
         self.reader = csv.reader(self.file)
 
         # Data
-        self.readings = []
+        self.readings = []       # Contains data in form of {"date": date (str), "level": level (float)}
         self.process_readings()
         self.daily_readings = []
         self.generate_daily_average_readings()
@@ -86,6 +86,56 @@ class Glucose_Data():
             average_level = sum(dates[date])/len(dates[date])
             self.daily_readings.append({"date": date, "level": average_level})
 
+    def get_all_readings(self) -> List[Dict[str, Union[str, float]]]:
+        """
+        Returns the full list of readings
+        """
+
+        return self.readings
+    
+    def get_number_of_readings(self, n: int) -> List[Dict[str, Union[str, float]]]:
+        """
+        Returns the n most recent readings
+
+        Arguments:
+            n: Number of readings to return
+        """
+
+        return self.readings[-n:]
+    
+    def get_readings_by_day(self, date: str) -> List[Dict[str, Union[str, float]]]:
+        """
+        Returns all readings with a certain date
+
+        Arguments:
+            date: The date to look for
+        """
+
+        # Make a list of every reading if and only if the reading's date is equal to the desired date
+        date_readings = [reading for reading in self.readings if reading["date"] == date]
+        return date_readings
+    
+    def get_all_daily_readings(self) -> List[Dict[str, Union[str, float]]]:
+        """
+        Returns the full list of daily readings
+        """
+
+        return self.daily_readings
+    
+    def get_average_reading_by_day(self, date: str) -> float:
+        """
+        Returns the average daily reading of a certain date
+
+        Arguments:
+            date: The date to look for
+        """
+
+        # Check if date exists
+        if date in self.daily_readings:
+            return self.daily_readings[date]
+
+        # Date doesn't exist
+        return -1.0
 
 # For testing
 if __name__ == "__main__":
