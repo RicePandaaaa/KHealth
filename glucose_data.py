@@ -28,9 +28,6 @@ class Glucose_Data():
         self.daily_readings = []
         self.generate_daily_average_readings()
 
-        #print(self.readings)
-        print(self.daily_readings)
-
         self.file.close()
 
     def process_readings(self) -> None:
@@ -122,21 +119,29 @@ class Glucose_Data():
 
         return self.daily_readings
     
-    def get_average_reading_by_day(self, date: str) -> float:
+    def get_average_level_by_day(self, date: str) -> float:
         """
-        Returns the average daily reading of a certain date
+        Returns the average dailyblood glucose level at a certain date
 
         Arguments:
             date: The date to look for
         """
 
         # Check if date exists
-        if date in self.daily_readings:
-            return self.daily_readings[date]
+        for reading in self.daily_readings:
+            if reading["date"] == date:
+                return reading["level"]
 
         # Date doesn't exist
         return -1.0
 
 # For testing
 if __name__ == "__main__":
-    Glucose_Data("glucose_time_data.csv")
+    glu = Glucose_Data("glucose_time_data.csv")
+
+    # Readings
+    print("Daily Readings:", glu.get_all_daily_readings())
+    print("Readings:", glu.get_all_readings()) 
+    print("Last 5 Readings:", glu.get_number_of_readings(5))
+    print("Average level of 9/30/2024:", glu.get_average_level_by_day("9/30/2024"))
+    print("Readings of 9/30/2024:", glu.get_readings_by_day("9/30/2024"))
