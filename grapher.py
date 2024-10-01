@@ -19,8 +19,12 @@ class Visualizer():
         self.MIN_SAFE_LEVEL_MG_DL = 70
         self.MAX_SAFE_LEVEL_MG_DL = 100
 
+        # Theme colors to match logo
+        self.BACKGROUND_COLOR = "#162b34"
+        self.TEXT_COLOR = "#48fcf1"
+
     def generate_glucose_line_graph(self, labels: List[str], levels: List[float], 
-                                    title: str, x_label: str) -> None:
+                                    title: str, x_label: str, file_name: str) -> None:
         """
         Generates a glucose line graph (connecting the points with lines). Graph will include
         lines to show the zones of healthy and unhealthy blood glucose levels.
@@ -31,18 +35,23 @@ class Visualizer():
             title: Name of the graph title
             x_label: Name of the x axis label
             y_label: Name of the y axis label
+            file_name: Name to use for the saved image file
         """
 
         # Create numerical x values (indices)
         x_indices = range(len(labels))
 
+        # Set colors
+        plt.gcf().set_facecolor(self.BACKGROUND_COLOR)
+
         # Create the scatter plot and line
         plt.grid(zorder=0)
-        plt.scatter(x_indices, levels, color='#0000ff', zorder=3)
-        plt.plot(x_indices, levels, linestyle='-', color='#0000ff', linewidth=0.5, zorder=2)
+        plt.scatter(x_indices, levels, color="#0000ff", zorder=3)
+        plt.plot(x_indices, levels, linestyle="-", color="#0000ff", linewidth=0.5, zorder=2)
 
         # Add the string labels to the x-axis with a slant (45 degrees)
-        plt.xticks(x_indices, labels, rotation=45, ha='right')  # 'ha' adjusts horizontal alignment
+        plt.xticks(x_indices, labels, color=self.TEXT_COLOR, rotation=45, ha="right")  # 'ha' adjusts horizontal alignment
+        plt.yticks(color=self.TEXT_COLOR)
 
         # Add horizontal lines for safe levels
         plt.axhline(y=self.MIN_SAFE_LEVEL_MG_DL, color="black", zorder=2)
@@ -59,12 +68,13 @@ class Visualizer():
         plt.axhspan(y_min, self.MIN_SAFE_LEVEL_MG_DL, color="#ffcccc", zorder=1)
 
         # Add labels and title and grid
-        plt.xlabel(x_label)
-        plt.ylabel("Blood Glucose Level (mg/dL)")
-        plt.title(title)
+        plt.xlabel(x_label, color=self.TEXT_COLOR)
+        plt.ylabel("Blood Glucose Level (mg/dL)", color=self.TEXT_COLOR)
+        plt.title(title, color=self.TEXT_COLOR)
 
         # Show the plot
         plt.tight_layout()  # Adjust layout to prevent clipping of tick labels
+        plt.savefig(f"images/{file_name}")
         plt.show()
 
 
@@ -77,4 +87,4 @@ if __name__ == "__main__":
     labels = [f"{reading["date"]}, {reading["time"]}" for reading in readings]
     levels = [reading["level"] for reading in readings]
 
-    visualizer.generate_glucose_line_graph(labels, levels, "Glucose Readings", "Date")
+    visualizer.generate_glucose_line_graph(labels, levels, "Glucose Readings", "Date", "all_readings")
