@@ -23,7 +23,7 @@ class Glucose_Data():
         self.reader = csv.reader(self.file)
 
         # Data
-        self.readings = []       # Contains data in form of {"date": date (str), "level": level (float)}
+        self.readings = []       # Contains data in form of {"date": date (str), "time": time, "level": level (float)}
         self.process_readings()
         self.daily_readings = []
         self.generate_daily_average_readings()
@@ -40,11 +40,11 @@ class Glucose_Data():
 
         # Put each line into self.readings
         for row in self.reader:
-            data = {"date": row[0].strip(), "level": float(row[1])}
+            data = {"date": row[0], "time": row[1], "level": float(row[2])}
             self.readings.append(data)
 
 
-    def get_recent_readings(self, num_readings: int) -> List[Dict[str, Union[str, float]]]:
+    def get_recent_readings(self, num_readings: int) -> List[Dict[str, Union[str, str, float]]]:
         """
         Return a certain amount of the most recent readings
 
@@ -83,14 +83,14 @@ class Glucose_Data():
             average_level = sum(dates[date])/len(dates[date])
             self.daily_readings.append({"date": date, "level": average_level})
 
-    def get_all_readings(self) -> List[Dict[str, Union[str, float]]]:
+    def get_all_readings(self) -> List[Dict[str, Union[str, str, float]]]:
         """
         Returns the full list of readings
         """
 
         return self.readings
     
-    def get_number_of_readings(self, n: int) -> List[Dict[str, Union[str, float]]]:
+    def get_number_of_readings(self, n: int) -> List[Dict[str, Union[str, str, float]]]:
         """
         Returns the n most recent readings
 
@@ -100,7 +100,7 @@ class Glucose_Data():
 
         return self.readings[-n:]
     
-    def get_readings_by_day(self, date: str) -> List[Dict[str, Union[str, float]]]:
+    def get_readings_by_day(self, date: str) -> List[Dict[str, Union[str, str, float]]]:
         """
         Returns all readings with a certain date
 
@@ -112,7 +112,7 @@ class Glucose_Data():
         date_readings = [reading for reading in self.readings if reading["date"] == date]
         return date_readings
     
-    def get_all_daily_readings(self) -> List[Dict[str, Union[str, float]]]:
+    def get_all_daily_readings(self) -> List[Dict[str, Union[str, str, float]]]:
         """
         Returns the full list of daily readings
         """
@@ -140,8 +140,8 @@ if __name__ == "__main__":
     glu = Glucose_Data("glucose_time_data.csv")
 
     # Readings
-    print("Daily Readings:", glu.get_all_daily_readings())
-    print("Readings:", glu.get_all_readings()) 
-    print("Last 5 Readings:", glu.get_number_of_readings(5))
-    print("Average level of 9/30/2024:", glu.get_average_level_by_day("9/30/2024"))
-    print("Readings of 9/30/2024:", glu.get_readings_by_day("9/30/2024"))
+    print("Daily Readings:", glu.get_all_daily_readings(), "\n", "-"*20)
+    print("Readings:", glu.get_all_readings(), "\n", "-"*20) 
+    print("Last 5 Readings:", glu.get_number_of_readings(5), "\n", "-"*20)
+    print("Average level of 9/30/2024:", glu.get_average_level_by_day("9/30/2024"), "\n", "-"*20)
+    print("Readings of 9/30/2024:", glu.get_readings_by_day("9/30/2024"), "\n", "-"*20)
