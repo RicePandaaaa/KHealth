@@ -21,7 +21,9 @@ class Visualizer():
 
         # Theme colors to match logo
         self.BACKGROUND_COLOR = "#162b34"
-        self.TEXT_COLOR = "#48fcf1"
+        self.TEXT_COLOR = "#ffffff"
+        self.HEADER_COLOR = "#48fcf1"
+        self.POINT_COLOR = "#0000ff"
 
     def generate_glucose_line_graph(self, labels: List[str], levels: List[float], 
                                     title: str, x_label: str, file_name: str) -> None:
@@ -46,8 +48,8 @@ class Visualizer():
 
         # Create the scatter plot and line
         plt.grid(zorder=0)
-        plt.scatter(x_indices, levels, color="#0000ff", zorder=3)
-        plt.plot(x_indices, levels, linestyle="-", color="#0000ff", linewidth=0.5, zorder=2)
+        plt.scatter(x_indices, levels, color=self.POINT_COLOR, zorder=3)
+        plt.plot(x_indices, levels, linestyle="-", color=self.POINT_COLOR, linewidth=0.5, zorder=2)
 
         # Add the string labels to the x-axis with a slant (45 degrees)
         plt.xticks(x_indices, labels, color=self.TEXT_COLOR, rotation=45, ha="right")  # 'ha' adjusts horizontal alignment
