@@ -13,6 +13,20 @@ class Glucose_Data():
         self.readings = []  # Contains data as {"date": date (str), "time": time, "level": level (float)}
         self.process_readings()
 
+        # Save the data made so it doesn't need to be re-done
+        self.saved_recent_readings = []
+        self.saved_daily_readings = []
+        self.saved_weekly_readings = []
+        self.saved_monthly_readings = []
+
+        # Generate data for today on launch
+        current_date = datetime.now()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+
+        self.get_readings_by_day(formatted_date)
+        self.get_readings_by_week(formatted_date)
+        self.get_readings_by_month(formatted_date)
+
         self.file.close()
 
     def process_readings(self) -> None:
@@ -31,19 +45,24 @@ class Glucose_Data():
         
         # Edge case: too many readings requested
         if num_readings > len(self.readings):
+            self.saved_recent_readings = self.readings[:]
             return self.readings
         
+        self.saved_recent_readings = self.readings[-num_readings][:]
         return self.readings[-num_readings]
 
     def get_all_readings(self) -> List[Dict[str, Union[str, str, float]]]:
         """Returns the full list of readings"""
 
-        return self.readings
+        return self.readings[:]
 
     def get_readings_by_day(self, date: str) -> List[Dict[str, Union[str, str, float]]]:
         """Returns all readings for a specific date"""
 
-        return [reading for reading in self.readings if reading["date"] == date]
+        day_readings = [reading for reading in self.readings if reading["date"] == date]
+        self.saved_daily_readings = day_readings[:]
+
+        return day_readings
 
     def get_readings_by_week(self, end_date: str) -> List[Dict[str, Union[str, str, float]]]:
         """
@@ -62,6 +81,7 @@ class Glucose_Data():
             if start_date <= datetime.strptime(reading["date"], "%m/%d/%Y") <= end_date
         ]
 
+        self.saved_weekly_readings = weekly_readings[:]
         return weekly_readings
 
     def get_readings_by_month(self, provided_date: str) -> List[Dict[str, Union[str, str, float]]]:
@@ -82,17 +102,25 @@ class Glucose_Data():
             if month_start <= datetime.strptime(reading["date"], "%m/%d/%Y") < next_month
         ]
 
+        self.saved_monthly_readings = monthly_readings[:]
         return monthly_readings
+    
+    def get_saved_recent_readings(self) -> List[Dict[str, Union[str, str, float]]]:
+        """ Return the most recently generated recent readings """
 
-# For testing
-if __name__ == "__main__":
-    glu = Glucose_Data("glucose_time_data.csv")
+        return self.saved_recent_readings[:]
+    
+    def get_saved_daily_readings(self) -> List[Dict[str, Union[str, str, float]]]:
+        """ Return the most recently generated daily readings """
 
-    # Test new methods
-    print("Readings for week ending on 09/08/2024:")
-    print(glu.get_readings_by_week("09/08/2024"), "\n", "-"*20)
+        return self.saved_daily_readings[:]
+    
+    def get_saved_weekly_readings(self) -> List[Dict[str, Union[str, str, float]]]:
+        """ Return the most recently generated weekly readings """
 
-    print("Readings for the month of September 2024:")
-    month_readings = glu.get_readings_by_month("09/17/2024")
-    print(month_readings, "\n", "-"*20)
-    print(len(month_readings), print(month_readings[-1]))
+        return self.saved_weekly_readings[:]
+    
+    def get_saved_monthly_readings(self) -> List[Dict[str, Union[str, str, float]]]:
+        """ Return the most recently generated monthly readings """
+
+        return self.saved_monthly_readings[:]
