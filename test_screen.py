@@ -10,7 +10,7 @@ class MainWindow(QMainWindow):
         self.ui = uic.loadUi("user_interface.ui", self)
 
         # Useful constants
-        self.BACKGROUND_COLOR = "#14232a"
+        self.BACKGROUND_COLOR = "#262a33"
 
         # Access specific widgets using their object names from the .ui file
         self.graph_label = self.findChild(QLabel, "graphLabel")
