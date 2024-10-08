@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>993</width>
+    <width>992</width>
     <height>676</height>
    </rect>
   </property>
@@ -42,27 +42,57 @@
       <height>117</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Daily Levels</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="weekDescLabel">
     <property name="geometry">
      <rect>
       <x>510</x>
-      <y>117</y>
+      <y>116</y>
       <width>170</width>
-      <height>117</height>
+      <height>119</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Weekly Levels</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="monthDescLabel">
@@ -74,107 +104,587 @@
       <height>117</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Monthly Levels</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="dayShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>748</x>
       <y>66</y>
-      <width>241</width>
+      <width>243</width>
       <height>51</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 2px solid white;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Daily Shift</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="weekShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>748</x>
       <y>183</y>
-      <width>241</width>
-      <height>51</height>
+      <width>243</width>
+      <height>52</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 2px solid white;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Weekly Shift</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthShiftValLabel">
+    <property name="geometry">
+     <rect>
+      <x>748</x>
+      <y>300</y>
+      <width>243</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
+    <property name="text">
+     <string>Monthly Shift</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="monthShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>300</y>
-      <width>241</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="monthShiftDescLabel_2">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
+      <x>678</x>
       <y>300</y>
       <width>71</width>
       <height>51</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Shift:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="weekShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>678</x>
       <y>183</y>
       <width>71</width>
-      <height>51</height>
+      <height>52</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Shift:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="dayShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>678</x>
       <y>66</y>
       <width>71</width>
       <height>51</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Shift:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dailyMinDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>678</x>
+      <y>0</y>
+      <width>104</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dayAvgDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>0</y>
+      <width>108</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dayMaxDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>886</x>
+      <y>0</y>
+      <width>105</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekMinDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>678</x>
+      <y>116</y>
+      <width>104</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekMaxDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>886</x>
+      <y>116</y>
+      <width>105</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekAvgDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>116</y>
+      <width>108</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="montlyMinDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>678</x>
+      <y>234</y>
+      <width>104</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthMaxDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>886</x>
+      <y>234</y>
+      <width>105</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthAvgDescLabel">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>234</y>
+      <width>108</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dayMinValLabel">
+    <property name="geometry">
+     <rect>
+      <x>679</x>
+      <y>30</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dayMaxValLabel">
+    <property name="geometry">
+     <rect>
+      <x>887</x>
+      <y>30</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dayAvgValLabel">
+    <property name="geometry">
+     <rect>
+      <x>782</x>
+      <y>30</y>
+      <width>106</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekMaxValLabel">
+    <property name="geometry">
+     <rect>
+      <x>887</x>
+      <y>147</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekAvgValLabel">
+    <property name="geometry">
+     <rect>
+      <x>782</x>
+      <y>147</y>
+      <width>106</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="weekMinValLabel">
+    <property name="geometry">
+     <rect>
+      <x>679</x>
+      <y>147</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthMaxValLabel">
+    <property name="geometry">
+     <rect>
+      <x>887</x>
+      <y>264</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthMinValLabel">
+    <property name="geometry">
+     <rect>
+      <x>679</x>
+      <y>264</y>
+      <width>104</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Min</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="monthAvgValLabel">
+    <property name="geometry">
+     <rect>
+      <x>782</x>
+      <y>264</y>
+      <width>106</width>
+      <height>37</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Average</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
@@ -183,7 +693,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>993</width>
+     <width>992</width>
      <height>22</height>
     </rect>
    </property>
