@@ -33,6 +33,10 @@ class MainWindow(QMainWindow):
 
         # Useful constants
         self.BACKGROUND_COLOR = "#262a33"
+        self.WINDOW_WIDTH = 832
+        self.WINDOW_HEIGHT = 561
+        self.MIN_SAFE_LEVEL_MG_DL = 70
+        self.MAX_SAFE_LEVEL_MG_DL = 100
 
         # Access specific widgets using their object names from the .ui file
         self.graph_label = self.findChild(QLabel, "graphLabel")
@@ -66,12 +70,17 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(f"background-color: {self.BACKGROUND_COLOR};")
         self.setWindowTitle("KHealth User Interface")
         self.setWindowIcon(QIcon("images/logo.png"))
+        self.setFixedSize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
 
-        # Image loading
         self.load_image(self.graph_label, "daily_readings.png")
-
-        # Text loading
         self.change_readings_text(self.day_data)
+
+        self.set_values_text(self.day_data, self.day_min_val_label,
+                             self.day_avg_val_label, self.day_max_val_label)
+        self.set_values_text(self.week_data, self.week_min_val_label,
+                             self.week_avg_val_label, self.week_max_val_label)
+        self.set_values_text(self.month_data, self.month_min_val_label,
+                             self.month_avg_val_label, self.month_max_val_label)
 
         # Show the UI
         self.show()
@@ -120,8 +129,34 @@ class MainWindow(QMainWindow):
         # Change the readings text to match the newly displayed graph
         self.change_readings_text(data_dict)
 
-if __name__ == "__main__":
-    # Initialize the application
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    sys.exit(app.exec())
+    def set_values_text(self, readings: Dict[str, Union[str, str, float]],
+                            min_label: QLabel, avg_label: QLabel, max_label: QLabel) -> None:
+        """
+        Sets all the text in the daily value text labels
+        """
+
+        # Get the values
+        data_values = [float(reading["level"]) for reading in readings]
+        data_min, data_avg, data_max = "N/A", "N/A", "N/A"
+
+        # Set min, average, max values
+        if len(data_values) != 0:
+            data_min = min(data_values)
+            data_avg = sum(data_values) / len(data_values)
+            data_max = max(data_values)
+
+        # Set the text
+        # color is based on safe [True = light green] or unsafe [False = light red]
+        colors = {True: "#88ff88", False: "#ff8888"}
+
+        min_color = colors[self.MIN_SAFE_LEVEL_MG_DL <= data_min <= self.MAX_SAFE_LEVEL_MG_DL] if data_min != "N/A" else "#ffffff"
+        min_label.setStyleSheet(f"color: {min_color}")
+        min_label.setText(f"{data_min:.2f}")
+
+        avg_color = colors[self.MIN_SAFE_LEVEL_MG_DL <= data_avg <= self.MAX_SAFE_LEVEL_MG_DL] if data_avg != "N/A" else "#ffffff"
+        avg_label.setStyleSheet(f"color: {avg_color}")
+        avg_label.setText(f"{data_avg:.2f}")
+
+        max_color = colors[self.MIN_SAFE_LEVEL_MG_DL <= data_max <= self.MAX_SAFE_LEVEL_MG_DL] if data_max != "N/A" else "#ffffff"
+        max_label.setStyleSheet(f"color: {max_color}")
+        max_label.setText(f"{data_max:.2f}")
