@@ -48,8 +48,12 @@ class Visualizer():
 
         # Create the scatter plot and line
         plt.grid(True, axis='y', zorder=0)
-        plt.scatter(x_indices, levels, color=self.POINT_COLOR, zorder=3)
-        plt.plot(x_indices, levels, linestyle="-", color=self.POINT_COLOR, linewidth=0.5, zorder=2)
+        # Swap to bar if there's too many values
+        if len(x_indices) > 25:
+            plt.bar(x_indices, levels, color=self.POINT_COLOR, zorder=3)
+        else:
+            plt.scatter(x_indices, levels, color=self.POINT_COLOR, zorder=3)
+            plt.plot(x_indices, levels, linestyle="-", color=self.POINT_COLOR, linewidth=0.5, zorder=2)
 
         # Add the string labels to the x-axis with a slant (45 degrees)
         empty_labels = ["" for _ in range(len(labels))]
@@ -66,8 +70,14 @@ class Visualizer():
         plt.xlim(x_min, x_max)
 
         # Adjust y-axis limits
-        y_min = min(self.MIN_SAFE_LEVEL_MG_DL, min(levels)) - 5
-        y_max = max(self.MAX_SAFE_LEVEL_MG_DL, max(levels)) + 5
+        y_min = min(self.MIN_SAFE_LEVEL_MG_DL, min(levels))
+        y_max = max(self.MAX_SAFE_LEVEL_MG_DL, max(levels))
+
+        # Set to nearest multiple of 5 and ensure the min is no more than 65 and the max is no less than 105 
+        y_min -= y_min % 5
+        y_max += 5 - (y_max % 5)
+        y_min = min(y_min, 65)
+        y_max = max(y_max, 105)
         plt.ylim(y_min, y_max)
 
         # Highlight healhty (light green) and unhealthy (light red) zones
@@ -99,21 +109,21 @@ if __name__ == "__main__":
     visualizer.generate_glucose_line_graph(labels, levels, "All Glucose Readings", "Time", "all_readings")
 
     # Daily readings
-    daily_readings = data_class.get_readings_by_day("06/02/2024")
+    daily_readings = data_class.get_saved_daily_readings()
     daily_labels = [f"{daily_reading["date"]}, {daily_reading["time"]}" for daily_reading in daily_readings]
     daily_levels = [daily_reading["level"] for daily_reading in daily_readings]
 
     visualizer.generate_glucose_line_graph(daily_labels, daily_levels, "Today's Glucose Readings", "Time", "daily_readings")
 
     # Weekly time readings
-    weekly_readings = data_class.get_readings_by_week("06/02/2024")
+    weekly_readings = data_class.get_saved_weekly_readings()
     weekly_labels = [f"{weekly_reading["date"]}, {weekly_reading["time"]}" for weekly_reading in weekly_readings]
     weekly_levels = [weekly_reading["level"] for weekly_reading in weekly_readings]
 
     visualizer.generate_glucose_line_graph(weekly_labels, weekly_levels, f"Weekly Glucose Readings", "Time", "weekly_readings")
 
     # Monthly readings
-    monthly_readings = data_class.get_readings_by_month("06/02/2024")
+    monthly_readings = data_class.get_saved_monthly_readings()
     monthly_labels = [f"{monthly_reading["date"]}, {monthly_reading["time"]}" for monthly_reading in monthly_readings]
     monthly_levels = [monthly_reading["level"] for monthly_reading in monthly_readings]
 
