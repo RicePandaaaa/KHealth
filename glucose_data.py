@@ -2,7 +2,7 @@ import csv
 from typing import List, Dict, Union
 from datetime import datetime, timedelta
 
-class Glucose_Data():
+class GlucoseData():
     """Holds data and methods of adjusting and reading data"""
 
     def __init__(self, file_name: str) -> None:
