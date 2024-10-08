@@ -1,6 +1,6 @@
 from typing import List
 import matplotlib.pyplot as plt
-from glucose_data import Glucose_Data
+from glucose_data import GlucoseData
 
 
 class Visualizer():
@@ -93,13 +93,13 @@ class Visualizer():
         # Show the plot
         plt.tight_layout()  # Adjust layout to prevent clipping of tick labels
         plt.savefig(f"images/{file_name}")
-        plt.show()
+        plt.close()
 
 
 # Test code
 if __name__ == "__main__":
     visualizer = Visualizer()
-    data_class = Glucose_Data("glucose_time_data.csv")
+    data_class = GlucoseData("glucose_time_data.csv")
 
     # All time readings
     readings = data_class.get_all_readings()
