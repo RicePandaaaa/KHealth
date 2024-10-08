@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
-    <height>676</height>
+    <width>823</width>
+    <height>561</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>511</width>
-      <height>351</height>
+      <height>359</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -36,10 +36,10 @@
    <widget class="QLabel" name="dayDescLabel">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>0</y>
+      <x>0</x>
+      <y>360</y>
       <width>170</width>
-      <height>117</height>
+      <height>68</height>
      </rect>
     </property>
     <property name="font">
@@ -67,10 +67,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekDescLabel">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>116</y>
+      <x>0</x>
+      <y>426</y>
       <width>170</width>
-      <height>119</height>
+      <height>68</height>
      </rect>
     </property>
     <property name="font">
@@ -98,10 +98,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthDescLabel">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>234</y>
+      <x>0</x>
+      <y>492</y>
       <width>170</width>
-      <height>117</height>
+      <height>68</height>
      </rect>
     </property>
     <property name="font">
@@ -129,17 +129,17 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>748</x>
-      <y>66</y>
-      <width>243</width>
-      <height>51</height>
+      <x>479</x>
+      <y>390</y>
+      <width>105</width>
+      <height>37</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 2px solid white;</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="lineWidth">
      <number>1</number>
@@ -154,17 +154,17 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>748</x>
-      <y>183</y>
-      <width>243</width>
-      <height>52</height>
+      <x>479</x>
+      <y>456</y>
+      <width>105</width>
+      <height>37</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 2px solid white;</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="lineWidth">
      <number>1</number>
@@ -179,17 +179,17 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>748</x>
-      <y>300</y>
-      <width>243</width>
-      <height>51</height>
+      <x>479</x>
+      <y>521</y>
+      <width>105</width>
+      <height>37</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 2px solid white;</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="lineWidth">
      <number>1</number>
@@ -204,10 +204,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>300</y>
-      <width>71</width>
-      <height>51</height>
+      <x>479</x>
+      <y>492</y>
+      <width>105</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -230,10 +230,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>183</y>
-      <width>71</width>
-      <height>52</height>
+      <x>478</x>
+      <y>426</y>
+      <width>105</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -256,10 +256,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>66</y>
-      <width>71</width>
-      <height>51</height>
+      <x>479</x>
+      <y>360</y>
+      <width>105</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -282,10 +282,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dailyMinDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>0</y>
+      <x>168</x>
+      <y>360</y>
       <width>104</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -311,10 +311,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayAvgDescLabel">
     <property name="geometry">
      <rect>
-      <x>780</x>
-      <y>0</y>
+      <x>270</x>
+      <y>360</y>
       <width>108</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -337,10 +337,10 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayMaxDescLabel">
     <property name="geometry">
      <rect>
-      <x>886</x>
-      <y>0</y>
+      <x>376</x>
+      <y>360</y>
       <width>105</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -363,8 +363,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekMinDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>116</y>
+      <x>168</x>
+      <y>426</y>
       <width>104</width>
       <height>32</height>
      </rect>
@@ -389,8 +389,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekMaxDescLabel">
     <property name="geometry">
      <rect>
-      <x>886</x>
-      <y>116</y>
+      <x>377</x>
+      <y>426</y>
       <width>105</width>
       <height>32</height>
      </rect>
@@ -415,8 +415,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekAvgDescLabel">
     <property name="geometry">
      <rect>
-      <x>780</x>
-      <y>116</y>
+      <x>270</x>
+      <y>426</y>
       <width>108</width>
       <height>32</height>
      </rect>
@@ -441,8 +441,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="montlyMinDescLabel">
     <property name="geometry">
      <rect>
-      <x>678</x>
-      <y>234</y>
+      <x>168</x>
+      <y>492</y>
       <width>104</width>
       <height>31</height>
      </rect>
@@ -467,8 +467,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthMaxDescLabel">
     <property name="geometry">
      <rect>
-      <x>886</x>
-      <y>234</y>
+      <x>376</x>
+      <y>492</y>
       <width>105</width>
       <height>31</height>
      </rect>
@@ -493,8 +493,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthAvgDescLabel">
     <property name="geometry">
      <rect>
-      <x>780</x>
-      <y>234</y>
+      <x>270</x>
+      <y>492</y>
       <width>108</width>
       <height>31</height>
      </rect>
@@ -519,8 +519,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayMinValLabel">
     <property name="geometry">
      <rect>
-      <x>679</x>
-      <y>30</y>
+      <x>168</x>
+      <y>390</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -538,8 +538,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayMaxValLabel">
     <property name="geometry">
      <rect>
-      <x>887</x>
-      <y>30</y>
+      <x>377</x>
+      <y>390</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -557,8 +557,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayAvgValLabel">
     <property name="geometry">
      <rect>
-      <x>782</x>
-      <y>30</y>
+      <x>272</x>
+      <y>390</y>
       <width>106</width>
       <height>37</height>
      </rect>
@@ -576,8 +576,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekMaxValLabel">
     <property name="geometry">
      <rect>
-      <x>887</x>
-      <y>147</y>
+      <x>377</x>
+      <y>456</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -595,8 +595,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekAvgValLabel">
     <property name="geometry">
      <rect>
-      <x>782</x>
-      <y>147</y>
+      <x>272</x>
+      <y>456</y>
       <width>106</width>
       <height>37</height>
      </rect>
@@ -614,8 +614,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekMinValLabel">
     <property name="geometry">
      <rect>
-      <x>679</x>
-      <y>147</y>
+      <x>168</x>
+      <y>456</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -633,8 +633,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthMaxValLabel">
     <property name="geometry">
      <rect>
-      <x>887</x>
-      <y>264</y>
+      <x>377</x>
+      <y>521</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -652,8 +652,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthMinValLabel">
     <property name="geometry">
      <rect>
-      <x>679</x>
-      <y>264</y>
+      <x>168</x>
+      <y>521</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -671,8 +671,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthAvgValLabel">
     <property name="geometry">
      <rect>
-      <x>782</x>
-      <y>264</y>
+      <x>272</x>
+      <y>521</y>
       <width>106</width>
       <height>37</height>
      </rect>
@@ -687,18 +687,151 @@ border: 2px solid white;</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QTextEdit" name="dataTextBox">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>34</y>
+      <width>301</width>
+      <height>321</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: #262a33; border: 3px solid white; color: #01e8c6;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>6</y>
+      <width>301</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;</string>
+    </property>
+    <property name="text">
+     <string>Exact Glucose Readings Shown by Date</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="dailyButton">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>360</y>
+      <width>191</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;
+background-color: #23262e;
+</string>
+    </property>
+    <property name="text">
+     <string>Show Daily Levels Graph</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="weeklyButton">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>426</y>
+      <width>191</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;
+background-color: #23262e;
+</string>
+    </property>
+    <property name="text">
+     <string>Show Weekly Levels Graph</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="monthlyButton">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>492</y>
+      <width>191</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: #01e8c6;
+border: 2px solid white;
+background-color: #23262e;
+</string>
+    </property>
+    <property name="text">
+     <string>Show Monthly Levels Graph</string>
+    </property>
+   </widget>
+   <zorder>weekAvgValLabel</zorder>
+   <zorder>weekMinValLabel</zorder>
+   <zorder>dayMinValLabel</zorder>
+   <zorder>weekMaxValLabel</zorder>
+   <zorder>monthMaxValLabel</zorder>
+   <zorder>monthMinValLabel</zorder>
+   <zorder>weekShiftValLabel</zorder>
+   <zorder>monthAvgValLabel</zorder>
+   <zorder>dayShiftValLabel</zorder>
+   <zorder>dayAvgValLabel</zorder>
+   <zorder>dayMaxValLabel</zorder>
+   <zorder>monthShiftValLabel</zorder>
+   <zorder>graphLabel</zorder>
+   <zorder>dataTextBox</zorder>
+   <zorder>label</zorder>
+   <zorder>weekMaxDescLabel</zorder>
+   <zorder>dailyMinDescLabel</zorder>
+   <zorder>dayMaxDescLabel</zorder>
+   <zorder>weekAvgDescLabel</zorder>
+   <zorder>monthMaxDescLabel</zorder>
+   <zorder>weekMinDescLabel</zorder>
+   <zorder>dayDescLabel</zorder>
+   <zorder>monthDescLabel</zorder>
+   <zorder>monthShiftDescLabel</zorder>
+   <zorder>weekDescLabel</zorder>
+   <zorder>dayAvgDescLabel</zorder>
+   <zorder>monthAvgDescLabel</zorder>
+   <zorder>montlyMinDescLabel</zorder>
+   <zorder>dayShiftDescLabel</zorder>
+   <zorder>weekShiftDescLabel</zorder>
+   <zorder>dailyButton</zorder>
+   <zorder>weeklyButton</zorder>
+   <zorder>monthlyButton</zorder>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>992</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
