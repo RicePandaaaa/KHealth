@@ -71,6 +71,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("KHealth User Interface")
         self.setWindowIcon(QIcon("images/logo.png"))
         self.setFixedSize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
+        self.data_text_box.setReadOnly(True)
 
         self.load_image(self.graph_label, "daily_readings.png")
         self.change_readings_text(self.day_data)
