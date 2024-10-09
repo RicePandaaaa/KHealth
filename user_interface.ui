@@ -13,6 +13,11 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton:pressed {
+    background-color: red;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="graphLabel">
     <property name="geometry">
@@ -39,7 +44,7 @@
       <x>0</x>
       <y>360</y>
       <width>170</width>
-      <height>68</height>
+      <height>66</height>
      </rect>
     </property>
     <property name="font">
@@ -48,11 +53,14 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -70,7 +78,7 @@ border: 2px solid white;</string>
       <x>0</x>
       <y>426</y>
       <width>170</width>
-      <height>68</height>
+      <height>66</height>
      </rect>
     </property>
     <property name="font">
@@ -79,11 +87,14 @@ border: 2px solid white;</string>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -110,11 +121,14 @@ border: 2px solid white;</string>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -129,7 +143,7 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>479</x>
+      <x>480</x>
       <y>390</y>
       <width>105</width>
       <height>37</height>
@@ -154,7 +168,7 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>479</x>
+      <x>480</x>
       <y>456</y>
       <width>105</width>
       <height>37</height>
@@ -179,8 +193,8 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthShiftValLabel">
     <property name="geometry">
      <rect>
-      <x>479</x>
-      <y>521</y>
+      <x>480</x>
+      <y>523</y>
       <width>105</width>
       <height>37</height>
      </rect>
@@ -204,18 +218,21 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="monthShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>479</x>
+      <x>480</x>
       <y>492</y>
       <width>105</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>1</number>
@@ -230,18 +247,21 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>478</x>
+      <x>480</x>
       <y>426</y>
       <width>105</width>
       <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -256,18 +276,21 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="dayShiftDescLabel">
     <property name="geometry">
      <rect>
-      <x>479</x>
+      <x>480</x>
       <y>360</y>
       <width>105</width>
       <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -292,11 +315,14 @@ border: 2px solid white;</string>
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -318,11 +344,14 @@ border: 2px solid white;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -344,11 +373,14 @@ border: 2px solid white;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -370,11 +402,14 @@ border: 2px solid white;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -389,18 +424,21 @@ border: 2px solid white;</string>
    <widget class="QLabel" name="weekMaxDescLabel">
     <property name="geometry">
      <rect>
-      <x>377</x>
+      <x>376</x>
       <y>426</y>
       <width>105</width>
       <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -422,11 +460,14 @@ border: 2px solid white;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -444,15 +485,18 @@ border: 2px solid white;</string>
       <x>168</x>
       <y>492</y>
       <width>104</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -470,15 +514,18 @@ border: 2px solid white;</string>
       <x>376</x>
       <y>492</y>
       <width>105</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -496,15 +543,18 @@ border: 2px solid white;</string>
       <x>270</x>
       <y>492</y>
       <width>108</width>
-      <height>31</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -634,7 +684,7 @@ border: 2px solid white;</string>
     <property name="geometry">
      <rect>
       <x>377</x>
-      <y>521</y>
+      <y>523</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -653,7 +703,7 @@ border: 2px solid white;</string>
     <property name="geometry">
      <rect>
       <x>168</x>
-      <y>521</y>
+      <y>523</y>
       <width>104</width>
       <height>37</height>
      </rect>
@@ -672,7 +722,7 @@ border: 2px solid white;</string>
     <property name="geometry">
      <rect>
       <x>272</x>
-      <y>521</y>
+      <y>523</y>
       <width>106</width>
       <height>37</height>
      </rect>
@@ -697,16 +747,17 @@ border: 2px solid white;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: #262a33; border: 3px solid white; color: #01e8c6;</string>
+     <string notr="true">background-color: #333333; 
+color: #ffffff;</string>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
     <property name="lineWidth">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -723,7 +774,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>6</y>
+      <y>3</y>
       <width>301</width>
       <height>30</height>
      </rect>
@@ -734,11 +785,20 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;</string>
+     <string notr="true">color: #ffffff;
+background-color: #333333;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
     <property name="text">
      <string>Exact Glucose Readings Shown by Date</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="dailyButton">
@@ -750,14 +810,35 @@ border: 2px solid white;</string>
       <height>41</height>
      </rect>
     </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
+    </property>
+    <property name="toolTip">
+     <string>Show graph of levels for the day</string>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;
-background-color: #23262e;
-</string>
+     <string notr="true">color: #ffffff;
+background-color: #3e3e3e;
+border: 2px solid #3e3e3e;
+border-top-color: #5a5a5a;
+border-left-color: #5a5a5a;
+border-bottom-color: #2a2a2a;
+border-right-color: #2a2a2a;</string>
     </property>
     <property name="text">
      <string>Show Daily Levels Graph</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="weeklyButton">
@@ -769,14 +850,23 @@ background-color: #23262e;
       <height>41</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Show graph of levels for last 7 days</string>
+    </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;
-background-color: #23262e;
-</string>
+     <string notr="true">color: #ffffff;
+background-color: #3e3e3e;
+border: 2px solid #3e3e3e;
+border-top-color: #5a5a5a;
+border-left-color: #5a5a5a;
+border-bottom-color: #2a2a2a;
+border-right-color: #2a2a2a;</string>
     </property>
     <property name="text">
      <string>Show Weekly Levels Graph</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="monthlyButton">
@@ -788,14 +878,23 @@ background-color: #23262e;
       <height>41</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Show graph of levels within this month</string>
+    </property>
     <property name="styleSheet">
-     <string notr="true">color: #01e8c6;
-border: 2px solid white;
-background-color: #23262e;
-</string>
+     <string notr="true">color: #ffffff;
+background-color: #3e3e3e;
+border: 2px solid #3e3e3e;
+border-top-color: #5a5a5a;
+border-left-color: #5a5a5a;
+border-bottom-color: #2a2a2a;
+border-right-color: #2a2a2a;</string>
     </property>
     <property name="text">
      <string>Show Monthly Levels Graph</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
    <zorder>weekAvgValLabel</zorder>
@@ -813,24 +912,24 @@ background-color: #23262e;
    <zorder>graphLabel</zorder>
    <zorder>dataTextBox</zorder>
    <zorder>label</zorder>
+   <zorder>dayDescLabel</zorder>
+   <zorder>monthDescLabel</zorder>
+   <zorder>weekDescLabel</zorder>
+   <zorder>dailyButton</zorder>
+   <zorder>weeklyButton</zorder>
+   <zorder>monthlyButton</zorder>
    <zorder>weekMaxDescLabel</zorder>
    <zorder>dailyMinDescLabel</zorder>
    <zorder>dayMaxDescLabel</zorder>
    <zorder>weekAvgDescLabel</zorder>
    <zorder>monthMaxDescLabel</zorder>
    <zorder>weekMinDescLabel</zorder>
-   <zorder>dayDescLabel</zorder>
-   <zorder>monthDescLabel</zorder>
    <zorder>monthShiftDescLabel</zorder>
-   <zorder>weekDescLabel</zorder>
    <zorder>dayAvgDescLabel</zorder>
    <zorder>monthAvgDescLabel</zorder>
    <zorder>montlyMinDescLabel</zorder>
    <zorder>dayShiftDescLabel</zorder>
    <zorder>weekShiftDescLabel</zorder>
-   <zorder>dailyButton</zorder>
-   <zorder>weeklyButton</zorder>
-   <zorder>monthlyButton</zorder>
   </widget>
  </widget>
  <resources/>
