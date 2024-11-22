@@ -12,17 +12,28 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF36927D),
         title: Image.asset(
           'assets/images/company_logo.png',
-          height: 40,
+          height: 60,
         ),
         centerTitle: false,
       ),
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Divider(
               color: Colors.white,
               thickness: 2,
-              height: 40
+              height: 2
+            ),
+
+            Image.asset(
+              'assets/images/home_readings_filler.png'
+            ),
+
+            const Divider(
+              color: Colors.white,
+              thickness: 2,
+              height: 30
             ),
             
             SizedBox(
@@ -93,10 +104,34 @@ class HomeScreen extends StatelessWidget {
             const Divider(
               color: Colors.white,
               thickness: 2,
-              height: 40
-            )
+              height: 30
+            ),
+
+            Image.asset(
+              'assets/images/home_time_filler.png',
+              width: 250,
+            ),
+
+            const Divider(
+              color: Colors.white,
+              thickness: 2,
+              height: 30
+            ),
+
+            const Padding(
+              padding: EdgeInsets.only(bottom: 10.0),
+              child: Text(
+                'Version 1.0.0',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
           ],
         ),
-      );
+      ),
+    );
   }
 }
