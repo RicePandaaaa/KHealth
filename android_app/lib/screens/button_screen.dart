@@ -21,22 +21,173 @@ class ButtonScreen extends StatelessWidget {
           },
           child: Image.asset(
             'assets/images/company_logo.png',
-            height: 40,
+            height: 60,
           ),
         ),
         centerTitle: false,
       ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-            textStyle: const TextStyle(fontSize: 24),
+
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(
+            color: Colors.white,
+            thickness: 2,
+            height: 40
           ),
-          onPressed: () {
-            // Add functionality for the button press
-          },
-          child: const Text('Click Me'),
-        ),
+          
+          SizedBox(
+            width: 350,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                backgroundColor: const Color.fromARGB(255, 9, 158, 203),
+                padding: const EdgeInsets.all(100),
+              ),
+              onPressed: () {
+                // Add functionality for this button press
+              },
+              child: const Text(
+                'Press to Start Scan',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFFFFFFFF),
+                )
+              ),
+            ),
+          ),
+
+          const Divider(
+            color: Colors.white,
+            thickness: 2,
+            height: 40
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Device Status: ',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white
+                )
+              ),
+
+              const SizedBox(width: 10),
+
+              Container(
+                padding: const EdgeInsets.all(8), // Add space inside the box
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color.fromARGB(255, 73, 255, 1), 
+                    width: 2
+                  ), // Black outline
+                  borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                ),
+                child: const Text(
+                  'DEVICE ONLINE',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Color.fromARGB(255, 73, 255, 1)
+                  ), // Customize text style
+                ),
+              )
+            ],
+          ),
+
+          const Divider(
+            color: Colors.white,
+            thickness: 2,
+            height: 40
+          ),
+
+          SizedBox(
+            width: 350,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3521CA),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+              ),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  (route) => false,
+                );
+              },
+              child: const Text(
+                'Back to Home',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFFFFFFFF),
+                )
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 350,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3521CA),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+              ),
+              onPressed: () {
+                // Add functionality for this button press
+              },
+              child: const Text(
+                'View Data History and Analysis',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFFFFFFFF),
+                )
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 350,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3521CA),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+              ),
+              onPressed: () {
+                // Add functionality for this button press
+              },
+              child: const Text(
+                'Disconnect/Reconnect to Device',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFFFFFFFF),
+                )
+              ),
+            ),
+          ),
+
+          const Divider(
+            color: Colors.white,
+            thickness: 2,
+            height: 30
+          ),
+
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20.0),
+            child: Text(
+              'Version 1.0.0',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
