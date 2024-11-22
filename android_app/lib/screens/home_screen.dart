@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'button_screen.dart';
+import 'data_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -68,7 +69,10 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                 ),
                 onPressed: () {
-                  // Add functionality for this button press
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DataScreen()),
+                  );
                 },
                 child: const Text(
                   'View Data History and Analysis',
