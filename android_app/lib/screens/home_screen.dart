@@ -16,21 +16,87 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: false,
       ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-            textStyle: const TextStyle(fontSize: 24),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ButtonScreen()),
-            );
-          },
-          child: const Text('Go to Scan Screen'),
+      body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Divider(
+              color: Colors.white,
+              thickness: 2,
+              height: 40
+            ),
+            
+            SizedBox(
+              width: 350,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3521CA),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                  );
+                },
+                child: const Text(
+                  'Start New Reading',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFFFFFFFF),
+                  )
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 350,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3521CA),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                ),
+                onPressed: () {
+                  // Add functionality for this button press
+                },
+                child: const Text(
+                  'View Data History and Analysis',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFFFFFFFF),
+                  )
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 350,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3521CA),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                ),
+                onPressed: () {
+                  // Add functionality for this button press
+                },
+                child: const Text(
+                  'Disconnect/Reconnect to Device',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFFFFFFFF),
+                  )
+                ),
+              ),
+            ),
+
+            const Divider(
+              color: Colors.white,
+              thickness: 2,
+              height: 40
+            )
+          ],
         ),
-      ),
-    );
+      );
   }
 }
