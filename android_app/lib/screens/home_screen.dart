@@ -111,9 +111,22 @@ class HomeScreen extends StatelessWidget {
               height: 30
             ),
 
-            Image.asset(
-              'assets/images/home_time_filler.png',
-              width: 250,
+            const Text(
+              'Time since Last Reading',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const Text(
+              'Readings Done Today',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const Divider(
