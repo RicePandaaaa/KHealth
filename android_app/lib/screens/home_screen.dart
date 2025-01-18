@@ -119,13 +119,62 @@ class HomeScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10), 
+              child: Container(
+                height: 100,
+                width: 250,
+                color: const Color(0xFF4CD8B7), 
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      child: Image.asset(
+                        'assets/images/clock.png',
+                        height: 30,
+                      ),
+                    ),
+
+                    const Text(
+                      '4 Readings',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             const Text(
               'Readings Done Today',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            Padding (
+              padding: const EdgeInsets.symmetric(vertical: 10), 
+              child: Container(
+                height: 50,
+                width: 250,
+                color: const Color(0xFF4CD8B7), 
+                alignment: Alignment.center,
+                child: const Text(
+                  '4 Readings',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
 

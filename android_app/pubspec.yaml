@@ -64,6 +64,7 @@ flutter:
       - assets/images/home_readings_filler.png
       - assets/images/home_time_filler.png
       - assets/images/data_screen_filler.png
+      - assets/images/clock.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
