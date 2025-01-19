@@ -27,8 +27,125 @@ class HomeScreen extends StatelessWidget {
               height: 2
             ),
 
-            Image.asset(
-              'assets/images/home_readings_filler.png'
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "Most Recent Reading",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Container(
+                              height: 115,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4CD8B7),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              alignment: Alignment.center,
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    child: Image.asset(
+                                      'assets/images/droplet.png',
+                                      height: 45,
+                                    ),
+                                  ),
+
+                                  const Text(
+                                    '100 mg/dL',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]
+                ),
+
+                const SizedBox(width: 5),
+
+                Column(
+                  children: [
+                    const Text(
+                      "Previous Reading",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Container(
+                        height: 40,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CD8B7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '100 mg/dL',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      "Daily Average",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Container(
+                        height: 40,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4CD8B7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '100 mg/dL',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
 
             const Divider(
@@ -53,7 +170,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Text(
                   'Start New Reading',
                   style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       color: Color(0xFFFFFFFF),
                   )
                 ),
@@ -77,7 +194,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Text(
                   'View Data History and Analysis',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Color(0xFFFFFFFF),
                   )
                 ),
@@ -98,7 +215,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Text(
                   'Disconnect/Reconnect to Device',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Color(0xFFFFFFFF),
                   )
                 ),
@@ -125,7 +242,10 @@ class HomeScreen extends StatelessWidget {
               child: Container(
                 height: 100,
                 width: 250,
-                color: const Color(0xFF4CD8B7), 
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CD8B7),
+                  borderRadius: BorderRadius.circular(15),
+                ),
                 alignment: Alignment.center,
                 child: Column(
                   children: [
@@ -165,7 +285,10 @@ class HomeScreen extends StatelessWidget {
               child: Container(
                 height: 50,
                 width: 250,
-                color: const Color(0xFF4CD8B7), 
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CD8B7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 alignment: Alignment.center,
                 child: const Text(
                   '4 Readings',
