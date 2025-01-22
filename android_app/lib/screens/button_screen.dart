@@ -2,8 +2,37 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'data_screen.dart';
 
-class ButtonScreen extends StatelessWidget {
+class ButtonScreen extends StatefulWidget {
   const ButtonScreen({super.key});
+
+  @override
+  ButtonScreenState createState() => ButtonScreenState();
+}
+
+class ButtonScreenState extends State<ButtonScreen> {
+  double _progress = 0.0;
+  bool _isLoading = false;
+
+  void _startProgress() {
+    setState(() {
+      _isLoading = true;
+      _progress = 0.0;
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+
+    for (int i = 1; i <= 5; i++) {
+      Future.delayed(Duration(seconds: i), () {
+        setState(() {
+          _progress = i / 5;
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +68,43 @@ class ButtonScreen extends StatelessWidget {
           
           SizedBox(
             width: 350,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: const CircleBorder(),
-                backgroundColor: const Color.fromARGB(255, 9, 158, 203),
-                padding: const EdgeInsets.all(100),
-              ),
-              onPressed: () {
-                // Add functionality for this button press
-              },
-              child: const Text(
-                'Press to Start Scan',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFFFFFFFF),
-                )
-              ),
-            ),
+            child: _isLoading
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        height: 200,
+                        width: 200,
+                        child: CircularProgressIndicator(
+                          value: _progress,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 9, 158, 203)),
+                        ),
+                      ),
+                      Text(
+                        '${(_progress * 100).toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFFFFFFFF),
+                        ),
+                      ),
+                    ],
+                  )
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      backgroundColor: const Color.fromARGB(255, 9, 158, 203),
+                      padding: const EdgeInsets.all(100),
+                    ),
+                    onPressed: _startProgress,
+                    child: const Text(
+                      'Press to Start Scan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ),
           ),
 
           const Divider(
@@ -80,20 +129,20 @@ class ButtonScreen extends StatelessWidget {
               const SizedBox(width: 10),
 
               Container(
-                padding: const EdgeInsets.all(8), // Add space inside the box
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: const Color.fromARGB(255, 73, 255, 1), 
                     width: 2
-                  ), // Black outline
-                  borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                  ),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'DEVICE ONLINE',
                   style: TextStyle(
                     fontSize: 20,
                     color: Color.fromARGB(255, 73, 255, 1)
-                  ), // Customize text style
+                  ),
                 ),
               )
             ],
