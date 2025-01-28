@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'button_screen.dart';
 
-String imageLink = "assets/images/daily_readings.png";
-
-class DataScreen extends StatelessWidget {
+class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
+
+  @override
+  State<DataScreen> createState() => _DataScreenState();
+}
+
+class _DataScreenState extends State<DataScreen> {
+  String imageLink = "assets/images/daily_readings.png";
+
+  void updateImage(String newPath) {
+    setState(() {
+      imageLink = newPath; // Update the image path
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +73,7 @@ class DataScreen extends StatelessWidget {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 7, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -83,7 +95,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -105,7 +117,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -146,7 +158,7 @@ class DataScreen extends StatelessWidget {
                         Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 7, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -168,7 +180,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -190,7 +202,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -228,10 +240,10 @@ class DataScreen extends StatelessWidget {
               ),
             ),
 
-                        Row(
+            Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 7, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -253,7 +265,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -275,7 +287,7 @@ class DataScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
@@ -296,6 +308,157 @@ class DataScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+
+            const Divider(
+              color: Colors.white,
+              thickness: 2,
+              height: 30
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child:  Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text(
+                            'Back to Home',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                              (route) => false,
+                            );
+                          },
+
+                          child: const Text(
+                            "Start New Reading",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            "Disconnect",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Column( 
+                    children: [
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {
+                            updateImage("assets/images/daily_readings.png");
+                          },
+                          child: const Text(
+                            'Show Daily Graph',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {
+                            updateImage("assets/images/weekly_readings.png");
+                          },
+
+                          child: const Text(
+                            "Show Weekly Graph",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 190,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3521CA),
+                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          ),
+                          onPressed: () {
+                            updateImage("assets/images/monthly_readings.png");
+                          },
+                          child: const Text(
+                            "Show Monthly Graph",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFFFFFFFF),
+                            )
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
             const Divider(
