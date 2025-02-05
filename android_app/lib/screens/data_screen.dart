@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'button_screen.dart';
+import 'bluetooth_screen.dart';
 
 class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
@@ -380,9 +381,15 @@ class _DataScreenState extends State<DataScreen> {
                             backgroundColor: const Color(0xFF3521CA),
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+                            );
+                          },
                           child: const Text(
-                            "Disconnect",
+                            "Bluetooth Settings",
+
                             style: TextStyle(
                               fontSize: 16,
                               color: Color(0xFFFFFFFF),

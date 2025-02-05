@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'data_screen.dart';
+import 'bluetooth_screen.dart';
 
 class ButtonScreen extends StatefulWidget {
   const ButtonScreen({super.key});
@@ -193,7 +194,7 @@ class ButtonScreenState extends State<ButtonScreen> {
                 );
               },
               child: const Text(
-                'View Data History and Analysis',
+                'Data History and Analytics',
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFFFFFFFF),
@@ -211,10 +212,14 @@ class ButtonScreenState extends State<ButtonScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
               ),
               onPressed: () {
-                // Add functionality for this button press
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+                );
               },
               child: const Text(
-                'Disconnect/Reconnect to Device',
+                'Bluetooth Settings',
+
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFFFFFFFF),
