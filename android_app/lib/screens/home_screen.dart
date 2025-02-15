@@ -3,6 +3,7 @@ import 'button_screen.dart';
 import 'data_screen.dart';
 import 'bluetooth_screen.dart';
 import '../services/bluetooth_manager.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,9 +48,123 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: const Size.fromHeight(60),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(FontAwesomeIcons.droplet, size: 30),
+                      const SizedBox(width: 20),
+                      const Text(
+                        "Start New Reading",
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Row of three buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.teal,
+                        side: const BorderSide(color: Colors.teal, width: 2.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size(0, 60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DataScreen()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FaIcon(FontAwesomeIcons.chartColumn, size: 25),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Insights",
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.teal,
+                        side: const BorderSide(color: Colors.teal, width: 2.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size(0, 60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.bluetooth,
+                            color: BluetoothManager().connectedDevice != null
+                                ? Colors.blue
+                                : Colors.red,
+                            size: 30,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            BluetoothManager().connectedDevice != null
+                                ? "Connected"
+                                : "Disconnected",
+                            style: TextStyle(
+                              fontSize: 20, 
+                              fontWeight: FontWeight.bold,
+                              color: BluetoothManager().connectedDevice != null
+                                ? Colors.blue
+                                : Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               // First segment: Column with three white containers.
               Padding(
-                padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                padding: const EdgeInsets.only(top: 10.0, bottom: 16.0),
                 child: Column(
                   children: [
                     Container(
@@ -208,81 +323,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              // Third segment: Column with three ElevatedButtons.
-              Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: const Size.fromHeight(60),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ButtonScreen()),
-                        );
-                      },
-                      child: const Text("Start New Reading", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: const Size.fromHeight(60),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const DataScreen()),
-                        );
-                      },
-                      child: const Text("View Data and Analytics", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: const Size.fromHeight(60),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const BluetoothScreen()),
-                        );
-                      },
-                      child: const Text("Bluetooth Settings", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              // Version number retained at the bottom.
-              const Text(
-                'Version 1.1.0',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                ),
               ),
             ],
           ),
