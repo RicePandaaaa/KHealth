@@ -22,6 +22,8 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
   void initState() {
     super.initState();
     requestPermissions(); // Request permissions when the screen is opened
+    // Get the initial connection state from the global BluetoothManager.
+    connectedDevice = BluetoothManager().connectedDevice;
   }
 
   @override
@@ -53,7 +55,6 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
     }
 
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
-
 
     // Listen to scan results and update the UI
     scanSubscription = FlutterBluePlus.scanResults.listen((results) {
@@ -91,29 +92,82 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF36927D), // Updated background color
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF36927D),
-        title: GestureDetector(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
-            );
-          },
-          child: Image.asset(
-            'assets/images/company_logo.png',
-            height: 60,
+  // Helper method to build the AppBar.
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: const Color(0xFF36927D),
+      title: GestureDetector(
+        onTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
+          );
+        },
+        child: Image.asset(
+          'assets/images/company_logo.png',
+          height: 60,
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Icon(
+            Icons.bluetooth,
+            color: connectedDevice != null ? const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            size: 40.0,
           ),
         ),
-        centerTitle: false,
-        elevation: 0, // Optional: Remove AppBar shadow
-      ),
+      ],
+      centerTitle: false,
+      elevation: 0,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // When a device is connected, show the connected UI.
+    if (connectedDevice != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF36927D),
+        appBar: _buildAppBar(),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Connected to: ${connectedDevice!.name}",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: disconnectDevice,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 40),
+                    textStyle: const TextStyle(fontSize: 20),
+                  ),
+                  child: const Text("Disconnect"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Otherwise, show the scanning UI.
+    return Scaffold(
+      backgroundColor: const Color(0xFF36927D),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
           ElevatedButton(
@@ -126,8 +180,16 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
               itemBuilder: (context, index) {
                 final device = scanResults[index].device;
                 return ListTile(
-                  title: Text(device.platformName.isNotEmpty ? device.platformName : "Unknown Device"),
-                  subtitle: Text(device.remoteId.toString()),
+                  title: Text(
+                    device.platformName.isNotEmpty
+                        ? device.platformName
+                        : "Unknown Device",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    device.remoteId.toString(),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   trailing: ElevatedButton(
                     onPressed: () => connectToDevice(device),
                     child: const Text("Connect"),
@@ -136,23 +198,6 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
               },
             ),
           ),
-          if (connectedDevice != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Connected to: ${connectedDevice!.name}",
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: disconnectDevice,
-                    child: const Text("Disconnect"),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );

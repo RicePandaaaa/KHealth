@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'data_screen.dart';
 import 'bluetooth_screen.dart';
+import '../services/bluetooth_manager.dart';
 
 class ButtonScreen extends StatefulWidget {
   const ButtonScreen({super.key});
@@ -35,29 +36,43 @@ class ButtonScreenState extends State<ButtonScreen> {
     }
   }
 
+  // Updated AppBar with Bluetooth icon.
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: const Color(0xFF36927D),
+      title: GestureDetector(
+        onTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
+          );
+        },
+        child: Image.asset(
+          'assets/images/company_logo.png',
+          height: 60,
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Icon(
+            Icons.bluetooth,
+            color: BluetoothManager().connectedDevice != null ?const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            size: 30.0,
+          ),
+        ),
+      ],
+      centerTitle: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF36927D),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF36927D),
-        title: InkWell(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
-            );
-          },
-          child: Image.asset(
-            'assets/images/company_logo.png',
-            height: 60,
-          ),
-        ),
-        centerTitle: false,
-      ),
-
+      appBar: _buildAppBar(),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
