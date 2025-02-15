@@ -24,7 +24,6 @@ class _DataScreenState extends State<DataScreen> {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: const Color(0xFF36927D),
       title: GestureDetector(
         onTap: () {
           Navigator.pushAndRemoveUntil(
@@ -43,7 +42,7 @@ class _DataScreenState extends State<DataScreen> {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ? const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            color: BluetoothManager().connectedDevice != null ? Colors.teal : Colors.black,
             size: 30.0,
           ),
         ),
@@ -55,37 +54,22 @@ class _DataScreenState extends State<DataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36927D),
       appBar: _buildAppBar(),
-      body: SingleChildScrollView( 
-        child:Column(
+      body: SingleChildScrollView(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 40
-            ),
-
             Image.asset(
-              imageLink
+              imageLink,
             ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-
             const Text(
               "Daily Levels (mg/dL)",
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             Row(
               children: [
                 Padding(
@@ -94,10 +78,9 @@ class _DataScreenState extends State<DataScreen> {
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Min: 65",
@@ -109,17 +92,15 @@ class _DataScreenState extends State<DataScreen> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Avg: 90",
@@ -131,17 +112,15 @@ class _DataScreenState extends State<DataScreen> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Max: 100",
@@ -155,107 +134,14 @@ class _DataScreenState extends State<DataScreen> {
                 ),
               ],
             ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-
             const Text(
               "Weekly Levels (mg/dL)",
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
-                        Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 7, top: 10),
-                  child: Container(
-                    width: 125,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Min: 65",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 10),
-                  child: Container(
-                    width: 125,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Avg: 90",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 10),
-                  child: Container(
-                    width: 125,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Max: 100",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-
-            const Text(
-              "Monthly Levels (mg/dL)",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
             Row(
               children: [
                 Padding(
@@ -264,10 +150,9 @@ class _DataScreenState extends State<DataScreen> {
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Min: 65",
@@ -279,17 +164,15 @@ class _DataScreenState extends State<DataScreen> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Avg: 90",
@@ -301,17 +184,15 @@ class _DataScreenState extends State<DataScreen> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.only(left: 10, top: 10),
                   child: Container(
                     width: 125,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4CD8B7),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
                       "Max: 100",
@@ -325,18 +206,87 @@ class _DataScreenState extends State<DataScreen> {
                 ),
               ],
             ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
+            const Text(
+              "Monthly Levels (mg/dL)",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 7, top: 10),
+                  child: Container(
+                    width: 125,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "Min: 65",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 10),
+                  child: Container(
+                    width: 125,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "Avg: 90",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 10),
+                  child: Container(
+                    width: 125,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "Max: 100",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(
+              color: Colors.grey,
+              thickness: 2,
+              height: 30,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child:  Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
                   Column(
                     children: [
@@ -344,7 +294,7 @@ class _DataScreenState extends State<DataScreen> {
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
@@ -357,18 +307,17 @@ class _DataScreenState extends State<DataScreen> {
                           child: const Text(
                             'Back to Home',
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFFFFFFFF),
-                            )
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
-
                       SizedBox(
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
@@ -378,22 +327,20 @@ class _DataScreenState extends State<DataScreen> {
                               (route) => false,
                             );
                           },
-
                           child: const Text(
                             "Start New Reading",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFFFFFFFF),
-                            )
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
-
                       SizedBox(
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
@@ -404,24 +351,22 @@ class _DataScreenState extends State<DataScreen> {
                           },
                           child: const Text(
                             "Bluetooth Settings",
-
                             style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFFFFFFFF),
-                            )
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-
-                  Column( 
+                  Column(
                     children: [
                       SizedBox(
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
@@ -430,39 +375,36 @@ class _DataScreenState extends State<DataScreen> {
                           child: const Text(
                             'Show Daily Graph',
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFFFFFFFF),
-                            )
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
-
                       SizedBox(
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
                             updateImage("assets/images/weekly_readings.png");
                           },
-
                           child: const Text(
                             "Show Weekly Graph",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFFFFFFFF),
-                            )
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
-
                       SizedBox(
                         width: 190,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3521CA),
+                            backgroundColor: Colors.teal,
                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                           ),
                           onPressed: () {
@@ -472,8 +414,8 @@ class _DataScreenState extends State<DataScreen> {
                             "Show Monthly Graph",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFFFFFFFF),
-                            )
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
@@ -482,19 +424,17 @@ class _DataScreenState extends State<DataScreen> {
                 ],
               ),
             ),
-
             const Divider(
-              color: Colors.white,
+              color: Colors.grey,
               thickness: 2,
-              height: 30
+              height: 30,
             ),
-
             const Padding(
               padding: EdgeInsets.only(bottom: 20.0),
               child: Text(
                 'Version 1.0.0',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                 ),

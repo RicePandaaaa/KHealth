@@ -96,7 +96,6 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: const Color(0xFF36927D),
       title: GestureDetector(
         onTap: () {
           Navigator.pushAndRemoveUntil(
@@ -115,7 +114,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: connectedDevice != null ? const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            color: connectedDevice != null ? Colors.teal : Colors.black,
             size: 40.0,
           ),
         ),
@@ -130,34 +129,32 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
     // When a device is connected, show the connected UI.
     if (connectedDevice != null) {
       return Scaffold(
-        backgroundColor: const Color(0xFF36927D),
         appBar: _buildAppBar(),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Connected to: ${connectedDevice!.name}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Connected to: ${connectedDevice!.platformName}",
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: disconnectDevice,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 40),
-                    textStyle: const TextStyle(fontSize: 20),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: disconnectDevice,
+                    child: const Text("Disconnect"),
                   ),
-                  child: const Text("Disconnect"),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -166,33 +163,40 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
 
     // Otherwise, show the scanning UI.
     return Scaffold(
-      backgroundColor: const Color(0xFF36927D),
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: startScan,
-            child: const Text("Scan for Devices"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: startScan,
+              child: const Text("Scan for Devices"),
+            ),
           ),
           Expanded(
             child: ListView.builder(
               itemCount: scanResults.length,
               itemBuilder: (context, index) {
                 final device = scanResults[index].device;
-                return ListTile(
-                  title: Text(
-                    device.platformName.isNotEmpty
-                        ? device.platformName
-                        : "Unknown Device",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    device.remoteId.toString(),
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: () => connectToDevice(device),
-                    child: const Text("Connect"),
+                return Card(
+                  color: Colors.white,
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: ListTile(
+                    title: Text(
+                      device.platformName.isNotEmpty
+                          ? device.platformName
+                          : "Unknown Device",
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    subtitle: Text(
+                      device.remoteId.toString(),
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () => connectToDevice(device),
+                      child: const Text("Connect"),
+                    ),
                   ),
                 );
               },

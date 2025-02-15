@@ -10,7 +10,6 @@ class HomeScreen extends StatelessWidget {
   // AppBar with Bluetooth status icon.
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFF36927D),
       title: GestureDetector(
         onTap: () {
           Navigator.pushAndRemoveUntil(
@@ -29,7 +28,7 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ? const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            color: BluetoothManager().connectedDevice != null ? Colors.teal : Colors.black,
             size: 40.0,
           ),
         ),
@@ -42,314 +41,251 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36927D),
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 2
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // First segment: Column with three white containers.
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+                child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Column(
-                        children: [
-                          const Text(
-                            "Most Recent Reading",
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Most Recent Reading',                            
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                              color: Colors.black87,
                             ),
                           ),
-
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Container(
-                              height: 115,
-                              width: 200,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4CD8B7),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              alignment: Alignment.center,
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    child: Image.asset(
-                                      'assets/images/droplet.png',
-                                      height: 45,
-                                    ),
-                                  ),
-
-                                  const Text(
-                                    '100 mg/dL',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          Text(
+                            '100 mg/DL',                            
+                            style: TextStyle(
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ]
-                ),
-
-                const SizedBox(width: 5),
-
-                Column(
-                  children: [
-                    const Text(
-                      "Previous Reading",
-                      style: TextStyle(
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Container(
-                        height: 40,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CD8B7),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          '100 mg/dL',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Previous Reading',                            
+                            style: TextStyle(
+                              fontSize: 25,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
+                          Text(
+                            '100 mg/DL',                            
+                            style: TextStyle(
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Text(
-                      "Daily Average",
-                      style: TextStyle(
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Container(
-                        height: 40,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CD8B7),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          '100 mg/dL',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Daily Average',                            
+                            style: TextStyle(
+                              fontSize: 25,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-            
-            SizedBox(
-              width: 350,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3521CA),
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ButtonScreen()),
-                  );
-                },
-                child: const Text(
-                  'Start New Reading',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFFFFFFFF),
-                  )
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 350,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3521CA),
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DataScreen()),
-                  );
-                },
-                child: const Text(
-                  'Data History and Analytics',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFFFFFFFF),
-                  )
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 350,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3521CA),
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const BluetoothScreen()),
-                  );
-                },
-                child: const Text(
-                  'Bluetooth Settings',
-
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFFFFFFFF),
-                  )
-                ),
-              ),
-            ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-
-            const Text(
-              'Time since Last Reading',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10), 
-              child: Container(
-                height: 100,
-                width: 250,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CD8B7),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      child: Image.asset(
-                        'assets/images/clock.png',
-                        height: 30,
-                      ),
-                    ),
-
-                    const Text(
-                      '4 Readings',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      
+                          Text(
+                            '100 mg/DL',                            
+                            style: TextStyle(
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-
-            const Text(
-              'Readings Done Today',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            Padding (
-              padding: const EdgeInsets.symmetric(vertical: 10), 
-              child: Container(
-                height: 50,
-                width: 250,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CD8B7),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  '4 Readings',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              // Second segment: Row with two white containers.
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Last Reading',                            
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            '4 hours ago',                            
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.only(left: 4),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'Readings done today',                          
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            '4 readings',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-            const Divider(
-              color: Colors.white,
-              thickness: 2,
-              height: 30
-            ),
-
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10.0),
-              child: Text(
-                'Version 1.0.0',
+              const SizedBox(height: 16),
+              // Third segment: Column with three ElevatedButtons.
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size.fromHeight(60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                        );
+                      },
+                      child: const Text("Start New Reading", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size.fromHeight(60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DataScreen()),
+                        );
+                      },
+                      child: const Text("View Data and Analytics", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size.fromHeight(60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+                        );
+                      },
+                      child: const Text("Bluetooth Settings", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              // Version number retained at the bottom.
+              const Text(
+                'Version 1.1.0',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
