@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ? Colors.teal : Colors.black,
+            color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
             size: 40.0,
           ),
         ),
@@ -67,7 +67,11 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FaIcon(FontAwesomeIcons.droplet, size: 30),
+                      FaIcon(
+                        FontAwesomeIcons.droplet, 
+                        size: 30,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 20),
                       const Text(
                         "Start New Reading",
@@ -103,7 +107,11 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          FaIcon(FontAwesomeIcons.chartColumn, size: 25),
+                          FaIcon(
+                            FontAwesomeIcons.chartColumn, 
+                            size: 25,
+                            color: Colors.teal,
+                          ),
                           const SizedBox(width: 8),
                           const Text(
                             "Insights",
@@ -143,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                                 : Colors.red,
                             size: 30,
                           ),
-                          const SizedBox(width: 8),
+                          
                           Text(
                             BluetoothManager().connectedDevice != null
                                 ? "Connected"
