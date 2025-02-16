@@ -64,8 +64,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
         });
       }
     }, onError: (error) {
-      // Handle scan errors if necessary
-      print("Scan error: $error");
+      // TODO: Handle scan errors if necessary
     });
   }
 
@@ -114,7 +113,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: connectedDevice != null ? Colors.teal : Colors.black,
+            color: connectedDevice != null ? Colors.lightBlue : Colors.red,
             size: 40.0,
           ),
         ),

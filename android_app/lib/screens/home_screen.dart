@@ -48,40 +48,6 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    minimumSize: const Size.fromHeight(60),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ButtonScreen()),
-                    );
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.droplet, 
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 20),
-                      const Text(
-                        "Start New Reading",
-                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: 10),
               // Row of three buttons
               Row(
@@ -331,6 +297,42 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: const Size.fromHeight(60),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(
+                        FontAwesomeIcons.droplet, 
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 20),
+                      const Text(
+                        "Start New Reading",
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

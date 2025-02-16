@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import 'data_screen.dart';
 import 'bluetooth_screen.dart';
 import '../services/bluetooth_manager.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ButtonScreen extends StatefulWidget {
   const ButtonScreen({super.key});
@@ -36,11 +37,9 @@ class ButtonScreenState extends State<ButtonScreen> {
     }
   }
 
-  // Updated AppBar with Bluetooth icon.
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: const Color(0xFF36927D),
       title: GestureDetector(
         onTap: () {
           Navigator.pushAndRemoveUntil(
@@ -59,7 +58,9 @@ class ButtonScreenState extends State<ButtonScreen> {
           padding: const EdgeInsets.only(right: 16.0),
           child: Icon(
             Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ?const Color.fromARGB(255, 105, 179, 240) : Colors.white,
+            color: BluetoothManager().connectedDevice != null
+                ? Colors.lightBlue
+                : Colors.red,
             size: 30.0,
           ),
         ),
@@ -71,17 +72,11 @@ class ButtonScreenState extends State<ButtonScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36927D),
       appBar: _buildAppBar(),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Divider(
-            color: Colors.white,
-            thickness: 2,
-            height: 40
-          ),
-          
+          SizedBox(height: 20),
           SizedBox(
             width: 350,
             child: _isLoading
@@ -94,14 +89,15 @@ class ButtonScreenState extends State<ButtonScreen> {
                         child: CircularProgressIndicator(
                           value: _progress,
                           backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 9, 158, 203)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color.fromARGB(255, 9, 158, 203)),
                         ),
                       ),
                       Text(
                         '${(_progress * 100).toStringAsFixed(0)}%',
                         style: const TextStyle(
                           fontSize: 20,
-                          color: Color(0xFFFFFFFF),
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -109,26 +105,23 @@ class ButtonScreenState extends State<ButtonScreen> {
                 : ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
-                      backgroundColor: const Color.fromARGB(255, 9, 158, 203),
                       padding: const EdgeInsets.all(100),
                     ),
                     onPressed: _startProgress,
                     child: const Text(
-                      'Press to Start Scan',
+                      'Start Scan',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFFFFFFFF),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
           ),
-
           const Divider(
-            color: Colors.white,
+            color: Colors.teal,
             thickness: 2,
-            height: 40
+            height: 40,
           ),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -136,127 +129,75 @@ class ButtonScreenState extends State<ButtonScreen> {
               const Text(
                 'Device Status: ',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white
-                )
+                ),
               ),
-
               const SizedBox(width: 10),
-
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: const Color.fromARGB(255, 73, 255, 1), 
-                    width: 2
-                  ),
+                      color: BluetoothManager().connectedDevice != null
+                          ? Colors.lightBlue
+                          : Colors.red,
+                      width: 2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'DEVICE ONLINE',
+                child: Text(
+                  BluetoothManager().connectedDevice != null
+                      ? 'ONLINE'
+                      : 'OFFLINE',
                   style: TextStyle(
-                    fontSize: 20,
-                    color: Color.fromARGB(255, 73, 255, 1)
+                    fontSize: 24,
+                    color: BluetoothManager().connectedDevice != null
+                        ? Colors.lightBlue
+                        : Colors.red,
                   ),
                 ),
-              )
+              ),
             ],
           ),
-
           const Divider(
-            color: Colors.white,
+            color: Colors.teal,
             thickness: 2,
-            height: 40
+            height: 40,
           ),
 
-          SizedBox(
-            width: 350,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3521CA),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-              ),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (route) => false,
-                );
-              },
-              child: const Text(
-                'Back to Home',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFFFFFFFF),
-                )
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-          SizedBox(
-            width: 350,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3521CA),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const DataScreen()),
-                );
-              },
-              child: const Text(
-                'Data History and Analytics',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFFFFFFFF),
-                )
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-          SizedBox(
-            width: 350,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3521CA),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const BluetoothScreen()),
-                );
-              },
-              child: const Text(
-                'Bluetooth Settings',
-
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFFFFFFFF),
-                )
-              ),
-            ),
-          ),
-
-          const Divider(
-            color: Colors.white,
-            thickness: 2,
-            height: 30
-          ),
-
-          const Padding(
-            padding: EdgeInsets.only(bottom: 20.0),
-            child: Text(
-              'Version 1.0.0',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  minimumSize: const Size.fromHeight(60),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(
+                      FontAwesomeIcons.house, 
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 15),
+                    const Text(
+                      "Return to Home",
+                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
               ),
             ),
           ),
