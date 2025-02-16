@@ -32,6 +32,15 @@ class _DataScreenState extends State<DataScreen> {
   double monthlyAvg = 90;
   double monthlyMax = 100;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache images so they're ready when shown, reducing any flicker.
+    precacheImage(const AssetImage("assets/images/daily_readings.png"), context);
+    precacheImage(const AssetImage("assets/images/weekly_readings.png"), context);
+    precacheImage(const AssetImage("assets/images/monthly_readings.png"), context);
+  }
+
   void updateImage(String newPath) {
     setState(() {
       imageLink = newPath; // Update the image path

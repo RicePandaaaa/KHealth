@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'data_screen.dart';
-import 'bluetooth_screen.dart';
 import '../services/bluetooth_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -18,6 +16,7 @@ class ButtonScreenState extends State<ButtonScreen> {
 
   void _startProgress() {
     setState(() {
+      BluetoothManager().sendData("DATA REQUESTED");
       _isLoading = true;
       _progress = 0.0;
     });
