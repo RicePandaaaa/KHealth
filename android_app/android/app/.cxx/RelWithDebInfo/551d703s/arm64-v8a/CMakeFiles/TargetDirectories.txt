@@ -1,0 +1,2 @@
+C:/Users/antho/KHealth/android_app/android/app/.cxx/RelWithDebInfo/551d703s/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/antho/KHealth/android_app/android/app/.cxx/RelWithDebInfo/551d703s/arm64-v8a/CMakeFiles/rebuild_cache.dir
