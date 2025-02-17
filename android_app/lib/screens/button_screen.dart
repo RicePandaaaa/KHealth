@@ -14,6 +14,15 @@ class ButtonScreenState extends State<ButtonScreen> {
   double _progress = 0.0;
   bool _isLoading = false;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache images that are used in your app to make image switching instant.
+    precacheImage(const AssetImage("assets/images/daily_readings.png"), context);
+    precacheImage(const AssetImage("assets/images/weekly_readings.png"), context);
+    precacheImage(const AssetImage("assets/images/monthly_readings.png"), context);
+  }
+
   void _startProgress() {
     setState(() {
       BluetoothManager().sendData("DATA REQUESTED");
@@ -21,6 +30,16 @@ class ButtonScreenState extends State<ButtonScreen> {
       _progress = 0.0;
     });
 
+    // For testing: Finish the progress almost instantly.
+    Future.delayed(const Duration(milliseconds: 100), () {
+      setState(() {
+        _progress = 1.0;
+        _isLoading = false;
+      });
+    });
+
+    // Comment out the original delays if not needed for testing
+    /*
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         _isLoading = false;
@@ -34,6 +53,7 @@ class ButtonScreenState extends State<ButtonScreen> {
         });
       });
     }
+    */
   }
 
   PreferredSizeWidget _buildAppBar() {

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/loading_screen.dart';
+import 'screens/data_screen.dart';
+
+// Define a global RouteObserver.
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
 void main() {
   runApp(const MyApp());
@@ -41,6 +45,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const LoadingScreen(), // Start with the loading screen
+      navigatorObservers: [routeObserver], // Attach the RouteObserver here.
     );
   }
 }

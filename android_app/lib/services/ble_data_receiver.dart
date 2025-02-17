@@ -28,7 +28,7 @@ class BLEDataReceiver {
               String receivedData = utf8.decode(data);
               print("Received BLE data: $receivedData");
               // Save the received data into a local file.
-              await FileStorage.writeData(receivedData);
+              await FileStorage.writeValue(double.parse(receivedData));
             });
             print("Subscribed to BLE data notifications.");
             return; // Exit after subscribing to the correct characteristic.
