@@ -7,6 +7,7 @@ import '../services/bluetooth_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'recent_readings_screen.dart';
 import 'button_screen.dart';
+import '../widgets/line_chart_widget.dart';
 
 // Make sure that you import or define your global route observer.
 // For example, if defined in main.dart:
@@ -20,8 +21,6 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> with RouteAware {
-  String imageLink = "assets/images/daily_readings.png";
-  
   // State variable to keep track of the active button.
   int _activeButtonIndex = 0;
 
@@ -41,11 +40,6 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
     super.didChangeDependencies();
     // Subscribe to the route observer to refresh data when coming back.
     routeObserver.subscribe(this, ModalRoute.of(context)!);
-
-    // Precache images so that image switches happen instantly.
-    precacheImage(const AssetImage("assets/images/daily_readings.png"), context);
-    precacheImage(const AssetImage("assets/images/weekly_readings.png"), context);
-    precacheImage(const AssetImage("assets/images/monthly_readings.png"), context);
   }
 
   @override
@@ -140,12 +134,6 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
     return total / entries.length;
   }
 
-  void updateImage(String newPath) {
-    setState(() {
-      imageLink = newPath;
-    });
-  }
-
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -223,11 +211,57 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Graph Section (replaces the top image)
             Padding(
-              padding: const EdgeInsets.all(10),
-              child: Image.asset(imageLink),
+              padding: const EdgeInsets.all(10.0),
+              child: FutureBuilder<List<DataEntry>>(
+                future: FileStorage.parseData(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                        height: 300,
+                        child: Center(child: CircularProgressIndicator()));
+                  } else if (snapshot.hasError) {
+                    return SizedBox(
+                        height: 300,
+                        child:
+                            Center(child: Text("Error: ${snapshot.error}")));
+                  }
+                  final allEntries = snapshot.data ?? [];
+                  DateTime now = DateTime.now();
+                  List<DataEntry> filteredEntries;
+                  if (_activeButtonIndex == 0) {
+                    // Today – filter by matching year, month, and day.
+                    filteredEntries = allEntries
+                        .where((entry) =>
+                            entry.date.year == now.year &&
+                            entry.date.month == now.month &&
+                            entry.date.day == now.day)
+                        .toList();
+                  } else if (_activeButtonIndex == 1) {
+                    // Last 7 days.
+                    DateTime weekAgo = now.subtract(const Duration(days: 7));
+                    filteredEntries = allEntries
+                        .where((entry) => entry.date.isAfter(weekAgo))
+                        .toList();
+                  } else {
+                    // Last 30 days.
+                    DateTime monthAgo = now.subtract(const Duration(days: 30));
+                    filteredEntries = allEntries
+                        .where((entry) => entry.date.isAfter(monthAgo))
+                        .toList();
+                  }
+                  if (filteredEntries.isEmpty) {
+                    return const SizedBox(
+                        height: 300,
+                        child: Center(child: Text("No data available for chart.")));
+                  }
+                  return LineChartWidget(entries: filteredEntries);
+                },
+              ),
             ),
-            // Buttons to switch the displayed image.
+
+            // Buttons to switch the displayed graph view.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Row(
@@ -237,16 +271,21 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 0 ? Colors.teal : Colors.white,
-                          foregroundColor: _activeButtonIndex == 0 ? Colors.white : Colors.teal,
-                          side: const BorderSide(color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          backgroundColor: _activeButtonIndex == 0
+                              ? Colors.teal
+                              : Colors.white,
+                          foregroundColor: _activeButtonIndex == 0
+                              ? Colors.white
+                              : Colors.teal,
+                          side: const BorderSide(
+                              color: Colors.teal, width: 2.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
                           setState(() {
                             _activeButtonIndex = 0;
                           });
-                          updateImage("assets/images/daily_readings.png");
                         },
                         child: const Text("Today", style: TextStyle(fontSize: 18)),
                       ),
@@ -257,16 +296,21 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 1 ? Colors.teal : Colors.white,
-                          foregroundColor: _activeButtonIndex == 1 ? Colors.white : Colors.teal,
-                          side: const BorderSide(color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          backgroundColor: _activeButtonIndex == 1
+                              ? Colors.teal
+                              : Colors.white,
+                          foregroundColor: _activeButtonIndex == 1
+                              ? Colors.white
+                              : Colors.teal,
+                          side: const BorderSide(
+                              color: Colors.teal, width: 2.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
                           setState(() {
                             _activeButtonIndex = 1;
                           });
-                          updateImage("assets/images/weekly_readings.png");
                         },
                         child: const Text("7 Days", style: TextStyle(fontSize: 18)),
                       ),
@@ -277,16 +321,21 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 2 ? Colors.teal : Colors.white,
-                          foregroundColor: _activeButtonIndex == 2 ? Colors.white : Colors.teal,
-                          side: const BorderSide(color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          backgroundColor: _activeButtonIndex == 2
+                              ? Colors.teal
+                              : Colors.white,
+                          foregroundColor: _activeButtonIndex == 2
+                              ? Colors.white
+                              : Colors.teal,
+                          side: const BorderSide(
+                              color: Colors.teal, width: 2.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
                           setState(() {
                             _activeButtonIndex = 2;
                           });
-                          updateImage("assets/images/monthly_readings.png");
                         },
                         child: const Text("30 Days", style: TextStyle(fontSize: 18)),
                       ),
@@ -295,12 +344,14 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                 ],
               ),
             ),
+
             // Display the aggregated data.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
               child: Column(
                 children: [
-                  const Text("Daily Levels (mg/dL)", style: TextStyle(color: Colors.black, fontSize: 20)),
+                  const Text("Daily Levels (mg/dL)",
+                      style: TextStyle(color: Colors.black, fontSize: 20)),
                   Row(
                     children: [
                       Expanded(child: _buildLevelBox("Min", dailyMin)),
@@ -311,7 +362,8 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text("Weekly Levels (mg/dL)", style: TextStyle(color: Colors.black, fontSize: 20)),
+                  const Text("Weekly Levels (mg/dL)",
+                      style: TextStyle(color: Colors.black, fontSize: 20)),
                   Row(
                     children: [
                       Expanded(child: _buildLevelBox("Min", weeklyMin)),
@@ -322,7 +374,8 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text("Monthly Levels (mg/dL)", style: TextStyle(color: Colors.black, fontSize: 20)),
+                  const Text("Monthly Levels (mg/dL)",
+                      style: TextStyle(color: Colors.black, fontSize: 20)),
                   Row(
                     children: [
                       Expanded(child: _buildLevelBox("Min", monthlyMin)),
@@ -335,6 +388,7 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                 ],
               ),
             ),
+
             // Bottom Buttons Section.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -356,12 +410,14 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                             foregroundColor: Colors.teal,
                             side: const BorderSide(color: Colors.teal, width: 2),
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () {
                             Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
                               (route) => false,
                             );
                           },
@@ -380,12 +436,15 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                             foregroundColor: Colors.teal,
                             side: const BorderSide(color: Colors.teal, width: 2),
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const RecentReadingsScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RecentReadingsScreen()),
                             );
                           },
                         ),
@@ -393,7 +452,6 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                     ],
                   ),
                   const SizedBox(height: 16),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -407,21 +465,23 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const ButtonScreen()),
                         );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          FaIcon(
-                            FontAwesomeIcons.droplet, 
+                          const FaIcon(
+                            FontAwesomeIcons.droplet,
                             size: 30,
                             color: Colors.white,
                           ),
                           const SizedBox(width: 20),
                           const Text(
                             "Start New Reading",
-                            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(width: 10),
                         ],
