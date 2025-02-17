@@ -3,10 +3,80 @@ import 'button_screen.dart';
 import 'data_screen.dart';
 import 'bluetooth_screen.dart';
 import '../services/bluetooth_manager.dart';
+import '../services/file_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  DataEntry? _mostRecent;
+  DataEntry? _previous;
+  double? _dailyAverage;
+  int _dailyCount = 0;
+
+  /// Computes a friendly time-difference string for the last reading.
+  String get _lastReadingText {
+    if (_mostRecent == null) return "N/A";
+    final diff = DateTime.now().difference(_mostRecent!.date);
+    if (diff.inHours >= 1) {
+      return "${diff.inHours} hour${diff.inHours > 1 ? "s" : ""} ago";
+    } else if (diff.inMinutes >= 1) {
+      return "${diff.inMinutes} minute${diff.inMinutes > 1 ? "s" : ""} ago";
+    } else {
+      return "Just now";
+    }
+  }
+
+  /// Loads data from storage (using FileStorage.parseData) and computes:
+  /// - Most recent and previous reading (from all stored entries).
+  /// - Daily average and daily count (from today's entries).
+  Future<void> _loadData() async {
+    List<DataEntry> entries = await FileStorage.parseData();
+    if (entries.isNotEmpty) {
+      // Sort entries by date descending (most recent first).
+      entries.sort((a, b) => b.date.compareTo(a.date));
+      setState(() {
+        _mostRecent = entries.first;
+        _previous = entries.length > 1 ? entries[1] : null;
+      });
+    } else {
+      setState(() {
+        _mostRecent = null;
+        _previous = null;
+      });
+    }
+
+    // Filter entries for today's date.
+    final now = DateTime.now();
+    List<DataEntry> dailyEntries = entries.where((entry) =>
+        entry.date.year == now.year &&
+        entry.date.month == now.month &&
+        entry.date.day == now.day).toList();
+
+    if (dailyEntries.isNotEmpty) {
+      double avg = dailyEntries.fold(0.0, (prev, e) => prev + e.value) / dailyEntries.length;
+      setState(() {
+        _dailyAverage = avg;
+        _dailyCount = dailyEntries.length;
+      });
+    } else {
+      setState(() {
+        _dailyAverage = null;
+        _dailyCount = 0;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
   // AppBar with Bluetooth status icon.
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -49,7 +119,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              // Row of three buttons
+              // Row of two buttons: Insights and Bluetooth.
               Row(
                 children: [
                   Expanded(
@@ -58,9 +128,7 @@ class HomeScreen extends StatelessWidget {
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.teal,
                         side: const BorderSide(color: Colors.teal, width: 2.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         minimumSize: const Size(0, 60),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -73,16 +141,9 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          FaIcon(
-                            FontAwesomeIcons.chartColumn, 
-                            size: 25,
-                            color: Colors.teal,
-                          ),
+                          FaIcon(FontAwesomeIcons.chartColumn, size: 25, color: Colors.teal),
                           const SizedBox(width: 8),
-                          const Text(
-                            "Insights",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
+                          const Text("Insights", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -94,9 +155,7 @@ class HomeScreen extends StatelessWidget {
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.teal,
                         side: const BorderSide(color: Colors.teal, width: 2.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         minimumSize: const Size(0, 60),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -112,22 +171,16 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.bluetooth,
-                            color: BluetoothManager().connectedDevice != null
-                                ? Colors.blue
-                                : Colors.red,
+                            color: BluetoothManager().connectedDevice != null ? Colors.blue : Colors.red,
                             size: 30,
                           ),
-                          
+                          const SizedBox(width: 8),
                           Text(
-                            BluetoothManager().connectedDevice != null
-                                ? "Connected"
-                                : "Disconnected",
+                            BluetoothManager().connectedDevice != null ? "Connected" : "Disconnected",
                             style: TextStyle(
-                              fontSize: 20, 
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: BluetoothManager().connectedDevice != null
-                                ? Colors.blue
-                                : Colors.red,
+                              color: BluetoothManager().connectedDevice != null ? Colors.blue : Colors.red,
                             ),
                           ),
                         ],
@@ -136,11 +189,12 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              // First segment: Column with three white containers.
+              // First segment: Three containers for readings.
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 16.0),
                 child: Column(
                   children: [
+                    // Most Recent Reading.
                     Container(
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -151,25 +205,21 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Most Recent Reading',                            
-                            style: TextStyle(
-                              fontSize: 25,
-                              color: Colors.black87,
-                            ),
+                        children: [
+                          const Text(
+                            'Most Recent Reading',
+                            style: TextStyle(fontSize: 25, color: Colors.black87),
                           ),
                           Text(
-                            '100 mg/DL',                            
-                            style: TextStyle(
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                            _mostRecent != null
+                                ? "${_mostRecent!.value.toStringAsFixed(1)} mg/DL"
+                                : "N/A",
+                            style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
                     ),
+                    // Previous Reading.
                     Container(
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -180,25 +230,21 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Previous Reading',                            
-                            style: TextStyle(
-                              fontSize: 25,
-                              color: Colors.black87,
-                            ),
+                        children: [
+                          const Text(
+                            'Previous Reading',
+                            style: TextStyle(fontSize: 25, color: Colors.black87),
                           ),
                           Text(
-                            '100 mg/DL',                            
-                            style: TextStyle(
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                            _previous != null
+                                ? "${_previous!.value.toStringAsFixed(1)} mg/DL"
+                                : "N/A",
+                            style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
                     ),
+                    // Daily Average.
                     Container(
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -209,21 +255,16 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Daily Average',                            
-                            style: TextStyle(
-                              fontSize: 25,
-                              color: Colors.black87,
-                            ),
+                        children: [
+                          const Text(
+                            'Daily Average',
+                            style: TextStyle(fontSize: 25, color: Colors.black87),
                           ),
                           Text(
-                            '100 mg/DL',                            
-                            style: TextStyle(
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                            _dailyAverage != null
+                                ? "${_dailyAverage!.toStringAsFixed(1)} mg/DL"
+                                : "N/A",
+                            style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
@@ -231,12 +272,12 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              // Second segment: Row with two white containers.
+              // Second segment: Two containers for "Last Reading" and "Readings done today".
               Row(
                 children: [
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.only(right: 4),
+                      margin: const EdgeInsets.only(right: 4),
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -244,22 +285,15 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Last Reading',                            
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
+                        children: [
+                          const Text(
+                            'Last Reading',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
-                            '4 hours ago',                            
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                            _mostRecent != null ? _lastReadingText : "N/A",
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
@@ -267,7 +301,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.only(left: 4),
+                      margin: const EdgeInsets.only(left: 4),
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -275,22 +309,15 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Readings done today',                          
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
+                        children: [
+                          const Text(
+                            'Readings done today',
+                            style: TextStyle(fontSize: 14, color: Colors.black),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
-                            '4 readings',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                            _dailyCount > 0 ? "$_dailyCount reading${_dailyCount > 1 ? "s" : ""}" : "N/A",
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
@@ -298,15 +325,13 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
+              // "Start New Reading" button.
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     minimumSize: const Size.fromHeight(60),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -319,11 +344,7 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      FaIcon(
-                        FontAwesomeIcons.droplet, 
-                        size: 30,
-                        color: Colors.white,
-                      ),
+                      FaIcon(FontAwesomeIcons.droplet, size: 30, color: Colors.white),
                       const SizedBox(width: 20),
                       const Text(
                         "Start New Reading",

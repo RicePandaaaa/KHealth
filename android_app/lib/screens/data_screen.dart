@@ -6,6 +6,7 @@ import '../services/file_storage.dart';
 import '../services/bluetooth_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'recent_readings_screen.dart';
+import 'button_screen.dart';
 
 // Make sure that you import or define your global route observer.
 // For example, if defined in main.dart:
@@ -24,16 +25,16 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
   // State variable to keep track of the active button.
   int _activeButtonIndex = 0;
 
-  // Aggregated level variables.
-  double dailyMin = 0;
-  double dailyAvg = 0;
-  double dailyMax = 0;
-  double weeklyMin = 0;
-  double weeklyAvg = 0;
-  double weeklyMax = 0;
-  double monthlyMin = 0;
-  double monthlyAvg = 0;
-  double monthlyMax = 0;
+  // Aggregate values; if there is no data, these remain null.
+  double? dailyMin;
+  double? dailyAvg;
+  double? dailyMax;
+  double? weeklyMin;
+  double? weeklyAvg;
+  double? weeklyMax;
+  double? monthlyMin;
+  double? monthlyAvg;
+  double? monthlyMax;
 
   @override
   void didChangeDependencies() {
@@ -87,17 +88,38 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
         entries.where((entry) => entry.date.isAfter(monthAgo)).toList();
 
     setState(() {
-      dailyMin = _computeMin(dailyEntries);
-      dailyAvg = _computeAvg(dailyEntries);
-      dailyMax = _computeMax(dailyEntries);
+      // Daily aggregates.
+      if (dailyEntries.isEmpty) {
+        dailyMin = null;
+        dailyAvg = null;
+        dailyMax = null;
+      } else {
+        dailyMin = _computeMin(dailyEntries);
+        dailyAvg = _computeAvg(dailyEntries);
+        dailyMax = _computeMax(dailyEntries);
+      }
 
-      weeklyMin = _computeMin(weeklyEntries);
-      weeklyAvg = _computeAvg(weeklyEntries);
-      weeklyMax = _computeMax(weeklyEntries);
+      // Weekly aggregates.
+      if (weeklyEntries.isEmpty) {
+        weeklyMin = null;
+        weeklyAvg = null;
+        weeklyMax = null;
+      } else {
+        weeklyMin = _computeMin(weeklyEntries);
+        weeklyAvg = _computeAvg(weeklyEntries);
+        weeklyMax = _computeMax(weeklyEntries);
+      }
 
-      monthlyMin = _computeMin(monthlyEntries);
-      monthlyAvg = _computeAvg(monthlyEntries);
-      monthlyMax = _computeMax(monthlyEntries);
+      // Monthly aggregates.
+      if (monthlyEntries.isEmpty) {
+        monthlyMin = null;
+        monthlyAvg = null;
+        monthlyMax = null;
+      } else {
+        monthlyMin = _computeMin(monthlyEntries);
+        monthlyAvg = _computeAvg(monthlyEntries);
+        monthlyMax = _computeMax(monthlyEntries);
+      }
     });
   }
 
@@ -155,8 +177,10 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
   }
 
   // A widget that displays a label and an aggregate value.
-  Widget _buildLevelBox(String label, double value) {
-    Color boxColor = _getBoxColor(value);
+  Widget _buildLevelBox(String label, double? value) {
+    // Use the computed color only when a value exists; otherwise, white.
+    Color boxColor = value != null ? _getBoxColor(value) : Colors.white;
+    String displayText = value != null ? value.toStringAsFixed(1) : "N/A";
     return Container(
       height: 70,
       decoration: BoxDecoration(
@@ -170,7 +194,7 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
           Text(label,
               style: const TextStyle(color: Colors.black, fontSize: 18)),
           Text(
-            value.toStringAsFixed(1),
+            displayText,
             style: const TextStyle(
                 color: Colors.black,
                 fontSize: 25,
@@ -311,40 +335,100 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
                 ],
               ),
             ),
-            const SizedBox(height: 15),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            // Bottom Buttons Section.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Row with "Home" and "History" buttons.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const FaIcon(
+                            FontAwesomeIcons.house,
+                            color: Colors.teal,
+                          ),
+                          label: const Text("Home"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.teal,
+                            side: const BorderSide(color: Colors.teal, width: 2),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                              (route) => false,
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const FaIcon(
+                            FontAwesomeIcons.list,
+                            color: Colors.teal,
+                          ),
+                          label: const Text("History"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.teal,
+                            side: const BorderSide(color: Colors.teal, width: 2),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const RecentReadingsScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  minimumSize: const Size.fromHeight(60),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RecentReadingsScreen()),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      FontAwesomeIcons.list, 
-                      size: 30,
-                      color: Colors.white,
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size.fromHeight(60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ButtonScreen()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FaIcon(
+                            FontAwesomeIcons.droplet, 
+                            size: 30,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 20),
+                          const Text(
+                            "Start New Reading",
+                            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 20),
-                    const Text(
-                      "View History",
-                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

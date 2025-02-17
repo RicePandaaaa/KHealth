@@ -22,7 +22,7 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
     loadEntries();
   }
 
-  /// Loads all entries from file_storage, sorts them descending (most-recent first),
+  /// Loads all entries from file_storage, sorts them descending (most recent first),
   /// and updates the state.
   Future<void> loadEntries() async {
     List<DataEntry> entries = await FileStorage.parseData();
@@ -49,11 +49,13 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
         .where((line) => line.trim().isNotEmpty)
         .toList();
     
-    // Construct the target line using the same format as FileStorage.writeValue.
+    // Construct the target line using the new format.
     final formattedDate = '${entry.date.year}-'
         '${entry.date.month.toString().padLeft(2, '0')}-'
         '${entry.date.day.toString().padLeft(2, '0')}';
-    String targetLine = "$formattedDate,${entry.value}";
+    final formattedTime = '${entry.date.hour.toString().padLeft(2, '0')}:'
+        '${entry.date.minute.toString().padLeft(2, '0')}';
+    String targetLine = "$formattedDate,$formattedTime,${entry.value}";
     
     // Remove only the first occurrence that matches.
     bool removed = false;
@@ -66,7 +68,7 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
       newLines.add(line);
     }
     
-    // Get the file reference. We recreate the file path as in FileStorage.
+    // Get the file reference.
     final directory = await getApplicationDocumentsDirectory();
     final filePath = '${directory.path}/ble_data.txt';
     File file = File(filePath);
@@ -103,12 +105,21 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
                     itemCount: currentEntries.length,
                     itemBuilder: (context, index) {
                       final DataEntry entry = currentEntries[index];
-                      final formattedDate = '${entry.date.year}-'
+                      // Build a formatted date time string: "YYYY-MM-DD HH:mm"
+                      final formattedDateTime = '${entry.date.year}-'
                           '${entry.date.month.toString().padLeft(2, '0')}-'
-                          '${entry.date.day.toString().padLeft(2, '0')}';
+                          '${entry.date.day.toString().padLeft(2, '0')} '
+                          '${entry.date.hour.toString().padLeft(2, '0')}:'
+                          '${entry.date.minute.toString().padLeft(2, '0')}';
                       return ListTile(
-                        title: Text(formattedDate),
-                        subtitle: Text("Value: ${entry.value}"),
+                        title: Text(
+                          '${entry.value} mg/dL',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          formattedDateTime,
+                          style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w600),
+                        ),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () async {
@@ -119,34 +130,46 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
                     },
                   ),
           ),
-          // Pagination controls.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Left (more recent) button - only active if not on the first page.
-              if (currentPage > 0)
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      currentPage--;
-                    });
-                  },
-                  child: const Icon(Icons.arrow_left),
+          // Pagination controls with closer arrow buttons and centered text.
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 30,
+                  child: currentPage > 0
+                      ? ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              currentPage--;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+                          child: const Icon(Icons.arrow_left, size: 20),
+                        )
+                      : Container(),
                 ),
-              Text("Page ${currentPage + 1} / $totalPages"),
-              // Right (later readings) button.
-              if (currentPage < totalPages - 1)
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      currentPage++;
-                    });
-                  },
-                  child: const Icon(Icons.arrow_right),
+                const SizedBox(width: 20),
+                Text("Page ${currentPage + 1} / $totalPages", style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 20),
+                SizedBox(
+                  width: 30,
+                  child: currentPage < totalPages - 1
+                      ? ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              currentPage++;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+                          child: const Icon(Icons.arrow_right, size: 20),
+                        )
+                      : Container(),
                 ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
