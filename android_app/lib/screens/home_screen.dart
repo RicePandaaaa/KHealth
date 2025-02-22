@@ -5,6 +5,7 @@ import 'bluetooth_screen.dart';
 import '../services/bluetooth_manager.dart';
 import '../services/file_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../main.dart'; // Import the global routeObserver
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
   DataEntry? _mostRecent;
   DataEntry? _previous;
   double? _dailyAverage;
@@ -76,6 +77,26 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to the route observer
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    // Unsubscribe from the route observer
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the current route has been popped back to
+    _loadData(); // Refresh data
   }
 
   // AppBar with Bluetooth status icon.
