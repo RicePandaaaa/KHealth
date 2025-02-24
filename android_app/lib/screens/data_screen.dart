@@ -8,6 +8,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'recent_readings_screen.dart';
 import 'button_screen.dart';
 import '../widgets/line_chart_widget.dart';
+import 'dart:io';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
 
 // Make sure that you import or define your global route observer.
 // For example, if defined in main.dart:
@@ -134,7 +139,7 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
     return total / entries.length;
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
       title: GestureDetector(
@@ -207,293 +212,360 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Graph Section (replaces the top image)
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: FutureBuilder<List<DataEntry>>(
-                future: FileStorage.parseData(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(
-                        height: 300,
-                        child: Center(child: CircularProgressIndicator()));
-                  } else if (snapshot.hasError) {
-                    return SizedBox(
-                        height: 300,
-                        child:
-                            Center(child: Text("Error: ${snapshot.error}")));
-                  }
-                  final allEntries = snapshot.data ?? [];
-                  DateTime now = DateTime.now();
-                  List<DataEntry> filteredEntries;
-                  if (_activeButtonIndex == 0) {
-                    // Today – filter by matching year, month, and day.
-                    filteredEntries = allEntries
-                        .where((entry) =>
-                            entry.date.year == now.year &&
-                            entry.date.month == now.month &&
-                            entry.date.day == now.day)
-                        .toList();
-                  } else if (_activeButtonIndex == 1) {
-                    // Last 7 days.
-                    DateTime weekAgo = now.subtract(const Duration(days: 7));
-                    filteredEntries = allEntries
-                        .where((entry) => entry.date.isAfter(weekAgo))
-                        .toList();
-                  } else {
-                    // Last 30 days.
-                    DateTime monthAgo = now.subtract(const Duration(days: 30));
-                    filteredEntries = allEntries
-                        .where((entry) => entry.date.isAfter(monthAgo))
-                        .toList();
-                  }
-                  if (filteredEntries.isEmpty) {
-                    return const SizedBox(
-                        height: 300,
-                        child: Center(child: Text("No data available for chart.")));
-                  }
-                  return LineChartWidget(entries: filteredEntries);
-                },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Graph Section (replaces the top image)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: FutureBuilder<List<DataEntry>>(
+                  future: FileStorage.parseData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                          height: 300,
+                          child: Center(child: CircularProgressIndicator()));
+                    } else if (snapshot.hasError) {
+                      return SizedBox(
+                          height: 300,
+                          child:
+                              Center(child: Text("Error: ${snapshot.error}")));
+                    }
+                    final allEntries = snapshot.data ?? [];
+                    DateTime now = DateTime.now();
+                    List<DataEntry> filteredEntries;
+                    if (_activeButtonIndex == 0) {
+                      // Today – filter by matching year, month, and day.
+                      filteredEntries = allEntries
+                          .where((entry) =>
+                              entry.date.year == now.year &&
+                              entry.date.month == now.month &&
+                              entry.date.day == now.day)
+                          .toList();
+                    } else if (_activeButtonIndex == 1) {
+                      // Last 7 days.
+                      DateTime weekAgo = now.subtract(const Duration(days: 7));
+                      filteredEntries = allEntries
+                          .where((entry) => entry.date.isAfter(weekAgo))
+                          .toList();
+                    } else {
+                      // Last 30 days.
+                      DateTime monthAgo = now.subtract(const Duration(days: 30));
+                      filteredEntries = allEntries
+                          .where((entry) => entry.date.isAfter(monthAgo))
+                          .toList();
+                    }
+                    if (filteredEntries.isEmpty) {
+                      return const SizedBox(
+                          height: 300,
+                          child: Center(child: Text("No data available for chart.")));
+                    }
+                    return LineChartWidget(entries: filteredEntries);
+                  },
+                ),
               ),
-            ),
 
-            // Buttons to switch the displayed graph view.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 0
-                              ? Colors.teal
-                              : Colors.white,
-                          foregroundColor: _activeButtonIndex == 0
-                              ? Colors.white
-                              : Colors.teal,
-                          side: const BorderSide(
-                              color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _activeButtonIndex = 0;
-                          });
-                        },
-                        child: const Text("Today", style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 1
-                              ? Colors.teal
-                              : Colors.white,
-                          foregroundColor: _activeButtonIndex == 1
-                              ? Colors.white
-                              : Colors.teal,
-                          side: const BorderSide(
-                              color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _activeButtonIndex = 1;
-                          });
-                        },
-                        child: const Text("7 Days", style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _activeButtonIndex == 2
-                              ? Colors.teal
-                              : Colors.white,
-                          foregroundColor: _activeButtonIndex == 2
-                              ? Colors.white
-                              : Colors.teal,
-                          side: const BorderSide(
-                              color: Colors.teal, width: 2.0),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _activeButtonIndex = 2;
-                          });
-                        },
-                        child: const Text("30 Days", style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Display the aggregated data.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
-              child: Column(
-                children: [
-                  const Text("Daily Levels (mg/dL)",
-                      style: TextStyle(color: Colors.black, fontSize: 20)),
-                  Row(
-                    children: [
-                      Expanded(child: _buildLevelBox("Min", dailyMin)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Avg", dailyAvg)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Max", dailyMax)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text("Weekly Levels (mg/dL)",
-                      style: TextStyle(color: Colors.black, fontSize: 20)),
-                  Row(
-                    children: [
-                      Expanded(child: _buildLevelBox("Min", weeklyMin)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Avg", weeklyAvg)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Max", weeklyMax)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text("Monthly Levels (mg/dL)",
-                      style: TextStyle(color: Colors.black, fontSize: 20)),
-                  Row(
-                    children: [
-                      Expanded(child: _buildLevelBox("Min", monthlyMin)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Avg", monthlyAvg)),
-                      const SizedBox(width: 8),
-                      Expanded(child: _buildLevelBox("Max", monthlyMax)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Bottom Buttons Section.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Row with "Home" and "History" buttons.
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const FaIcon(
-                            FontAwesomeIcons.house,
-                            color: Colors.teal,
-                          ),
-                          label: const Text("Home"),
+              // Buttons to switch the displayed graph view.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.teal,
-                            side: const BorderSide(color: Colors.teal, width: 2),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            backgroundColor: _activeButtonIndex == 0
+                                ? Colors.teal
+                                : Colors.white,
+                            foregroundColor: _activeButtonIndex == 0
+                                ? Colors.white
+                                : Colors.teal,
+                            side: const BorderSide(
+                                color: Colors.teal, width: 2.0),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                              (route) => false,
-                            );
+                            setState(() {
+                              _activeButtonIndex = 0;
+                            });
                           },
+                          child: const Text("Today", style: TextStyle(fontSize: 16)),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const FaIcon(
-                            FontAwesomeIcons.list,
-                            color: Colors.teal,
-                          ),
-                          label: const Text("History"),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.teal,
-                            side: const BorderSide(color: Colors.teal, width: 2),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            backgroundColor: _activeButtonIndex == 1
+                                ? Colors.teal
+                                : Colors.white,
+                            foregroundColor: _activeButtonIndex == 1
+                                ? Colors.white
+                                : Colors.teal,
+                            side: const BorderSide(
+                                color: Colors.teal, width: 2.0),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RecentReadingsScreen()),
-                            );
+                            setState(() {
+                              _activeButtonIndex = 1;
+                            });
                           },
+                          child: const Text("7 Days", style: TextStyle(fontSize: 16)),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: const Size.fromHeight(60),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ButtonScreen()),
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const FaIcon(
-                            FontAwesomeIcons.droplet,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 20),
-                          const Text(
-                            "Start New Reading",
-                            style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
                       ),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _activeButtonIndex == 2
+                                ? Colors.teal
+                                : Colors.white,
+                            foregroundColor: _activeButtonIndex == 2
+                                ? Colors.white
+                                : Colors.teal,
+                            side: const BorderSide(
+                                color: Colors.teal, width: 2.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _activeButtonIndex = 2;
+                            });
+                          },
+                          child: const Text("30 Days", style: TextStyle(fontSize: 16)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Display the aggregated data.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
+                child: Column(
+                  children: [
+                    const Text("Daily Levels (mg/dL)",
+                        style: TextStyle(color: Colors.black, fontSize: 20)),
+                    Row(
+                      children: [
+                        Expanded(child: _buildLevelBox("Min", dailyMin)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Avg", dailyAvg)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Max", dailyMax)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text("Weekly Levels (mg/dL)",
+                        style: TextStyle(color: Colors.black, fontSize: 20)),
+                    Row(
+                      children: [
+                        Expanded(child: _buildLevelBox("Min", weeklyMin)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Avg", weeklyAvg)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Max", weeklyMax)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text("Monthly Levels (mg/dL)",
+                        style: TextStyle(color: Colors.black, fontSize: 20)),
+                    Row(
+                      children: [
+                        Expanded(child: _buildLevelBox("Min", monthlyMin)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Avg", monthlyAvg)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildLevelBox("Max", monthlyMax)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Bottom Buttons Section.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Row with "Home" and "History" buttons.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: const FaIcon(
+                              FontAwesomeIcons.house,
+                              color: Colors.teal,
+                            ),
+                            label: const Text("Home"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.teal,
+                              side: const BorderSide(color: Colors.teal, width: 2),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()),
+                                (route) => false,
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: const FaIcon(
+                              FontAwesomeIcons.list,
+                              color: Colors.teal,
+                            ),
+                            label: const Text("History"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.teal,
+                              side: const BorderSide(color: Colors.teal, width: 2),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RecentReadingsScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: const Size.fromHeight(60),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ButtonScreen()),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const FaIcon(
+                              FontAwesomeIcons.droplet,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 20),
+                            const Text(
+                              "Start New Reading",
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+                    
+                    // Button to download data as PDF
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          minimumSize: const Size.fromHeight(60),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        onPressed: _generatePdf,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.download, size: 30, color: Colors.white),
+                            const SizedBox(width: 20),
+                            const Text(
+                              "Download Data (PDF)",
+                              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _generatePdf() async {
+    final pdf = pw.Document();
+
+    // Fetch data entries
+    List<DataEntry> entries = await FileStorage.parseData();
+
+    // Add a page to the PDF
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('User Data Report', style: pw.TextStyle(fontSize: 24)),
+              pw.SizedBox(height: 20),
+              pw.Text('Data Entries:', style: pw.TextStyle(fontSize: 18)),
+              pw.SizedBox(height: 10),
+              ...entries.map((entry) {
+                return pw.Text(
+                  'Date: ${entry.date}, Value: ${entry.value.toStringAsFixed(1)} mg/dL',
+                  style: pw.TextStyle(fontSize: 14),
+                );
+              }).toList(),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Save the PDF to a file
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/user_data_report.pdf");
+    await file.writeAsBytes(await pdf.save());
+
+    // Use the printing package to share the PDF
+    await Printing.sharePdf(bytes: await pdf.save(), filename: 'user_data_report.pdf');
   }
 }
