@@ -3,6 +3,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
+// Replace these UUIDs with your own if needed.
 #define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
@@ -14,8 +15,12 @@ class MyCharacteristicCallbacks : public BLECharacteristicCallbacks {
     if (rxValue.length() > 0) {
       Serial.print("Received Value: ");
       Serial.println(rxValue.c_str());
+      // Process received data here as needed.
 
-      pCharacteristic->setValue(String(random(75,105)));
+      String val = String(random(75,105));
+      pCharacteristic->setValue(val);
+      Serial.print("Value sent out: ");
+      Serial.println(val);
       pCharacteristic->notify();
     }
   }
@@ -28,7 +33,7 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
   void onDisconnect(BLEServer* pServer) override {
     Serial.println("Client disconnected");
-    // Restart advertising so thatFlutter app can reconnect
+    // Restart advertising so that your Flutter app can reconnect
     BLEDevice::getAdvertising()->start();
   }
 };
@@ -80,5 +85,5 @@ void setup() {
 
 void loop() {
   // Delay between notifications
-  delay(2000);
+  delay(2000);  // Adjust the delay as needed
 }
