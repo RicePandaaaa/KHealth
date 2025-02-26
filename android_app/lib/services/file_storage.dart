@@ -38,19 +38,18 @@ class FileStorage {
 
   /// Writes a [value] by automatically appending the current date and time.
   ///
-  /// The file will receive a new line in the format "YYYY-MM-DD,HH:mm,value".
-  /// (Uses 24hr format.)
+  /// The file will receive a new line in the format "YYYY-MM-DD,HH:mm:ss.SSS,value".
+  /// (Uses 24hr format with milliseconds.)
   static Future<File> writeValue(double value) async {
     final now = DateTime.now();
     // Format date ensuring two-digit month and day.
     final formattedDate =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    // Format time in 24hr format with two digits for hour and minute.
+    // Format time in 24hr format with two digits for hour and minute, and include seconds and milliseconds.
     final formattedTime =
-        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}.${now.millisecond.toString().padLeft(3, '0')}';
     String newData = '$formattedDate,$formattedTime,$value';
-    // Debug: Show the combined new data entry.
-    print("Storing new data entry: $newData");
+
     return writeData(newData);
   }
 
@@ -59,11 +58,8 @@ class FileStorage {
     try {
       final file = await _localFile;
       String contents = await file.readAsString();
-      // Debug: Log the content read from file.
-      print("Read data from file:\n$contents");
       return contents;
     } catch (e) {
-      print('Error reading file: $e');
       return '';
     }
   }
@@ -90,32 +86,26 @@ class FileStorage {
         try {
           List<String> dateComponents = datePart.split('-');
           List<String> timeComponents = timePart.split(':');
+          List<String> secondComponents = timeComponents[2].split('.');
 
-          if (dateComponents.length == 3 && timeComponents.length == 2) {
+          if (dateComponents.length == 3 && timeComponents.length == 3) {
             int year = int.parse(dateComponents[0]);
             int month = int.parse(dateComponents[1]);
             int day = int.parse(dateComponents[2]);
             int hour = int.parse(timeComponents[0]);
             int minute = int.parse(timeComponents[1]);
+            int second = int.parse(secondComponents[0]);
+            int millisecond = int.parse(secondComponents[1]);
 
-            DateTime dateTime = DateTime(year, month, day, hour, minute);
+            DateTime dateTime = DateTime(year, month, day, hour, minute, second, millisecond);
             double? value = double.tryParse(valuePart);
             if (value != null) {
               entries.add(DataEntry(date: dateTime, value: value));
-            } else {
-              print("Failed to parse value from '$valuePart'");
             }
-          } else {
-            print("Invalid date or time format in line: $line");
           }
-        } catch (e) {
-          print("Error parsing line '$line': $e");
-        }
-      } else {
-        print("Incorrect format for line: $line");
+        } catch (e) {}
       }
     }
-    print("Parsed ${entries.length} entries from file: $entries");
     return entries;
   }
 } 

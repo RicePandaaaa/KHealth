@@ -49,12 +49,14 @@ class _RecentReadingsScreenState extends State<RecentReadingsScreen> {
         .where((line) => line.trim().isNotEmpty)
         .toList();
     
-    // Construct the target line using the new format.
+    // Construct the target line using the new format with seconds and milliseconds.
     final formattedDate = '${entry.date.year}-'
         '${entry.date.month.toString().padLeft(2, '0')}-'
         '${entry.date.day.toString().padLeft(2, '0')}';
     final formattedTime = '${entry.date.hour.toString().padLeft(2, '0')}:'
-        '${entry.date.minute.toString().padLeft(2, '0')}';
+        '${entry.date.minute.toString().padLeft(2, '0')}:'
+        '${entry.date.second.toString().padLeft(2, '0')}.'
+        '${entry.date.millisecond.toString().padLeft(3, '0')}';
     String targetLine = "$formattedDate,$formattedTime,${entry.value}";
     
     // Remove only the first occurrence that matches.

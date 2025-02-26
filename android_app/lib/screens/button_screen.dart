@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../services/bluetooth_manager.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'bluetooth_screen.dart';
 
 class ButtonScreen extends StatefulWidget {
   const ButtonScreen({super.key});
@@ -37,23 +38,6 @@ class ButtonScreenState extends State<ButtonScreen> {
         _isLoading = false;
       });
     });
-
-    // Comment out the original delays if not needed for testing
-    /*
-    Future.delayed(const Duration(seconds: 5), () {
-      setState(() {
-        _isLoading = false;
-      });
-    });
-
-    for (int i = 1; i <= 5; i++) {
-      Future.delayed(Duration(seconds: i), () {
-        setState(() {
-          _progress = i / 5;
-        });
-      });
-    }
-    */
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -75,12 +59,18 @@ class ButtonScreenState extends State<ButtonScreen> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(
-            Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null
-                ? Colors.lightBlue
-                : Colors.red,
-            size: 30.0,
+          child: IconButton(
+            icon: Icon(
+              Icons.bluetooth,
+              color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
+              size: 30.0,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+              );
+            },
           ),
         ),
       ],

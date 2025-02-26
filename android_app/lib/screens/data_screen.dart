@@ -1,22 +1,23 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import '../main.dart'; // Import to access the global routeObserver.
-import 'home_screen.dart';
+import 'dart:io';
+
+import '../main.dart';
 import '../services/file_storage.dart';
 import '../services/bluetooth_manager.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'recent_readings_screen.dart';
-import 'button_screen.dart';
 import '../widgets/line_chart_widget.dart';
-import 'dart:io';
-import 'package:pdf/pdf.dart';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:path_provider/path_provider.dart';
 
-// Make sure that you import or define your global route observer.
-// For example, if defined in main.dart:
-// import '../main.dart';
+import 'home_screen.dart';
+import 'bluetooth_screen.dart';
+import 'button_screen.dart';
+import 'recent_readings_screen.dart';
+
+
 
 class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
@@ -158,10 +159,18 @@ class _DataScreenState extends State<DataScreen> with RouteAware {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(
-            Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
-            size: 30.0,
+          child: IconButton(
+            icon: Icon(
+              Icons.bluetooth,
+              color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
+              size: 30.0,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+              );
+            },
           ),
         ),
       ],

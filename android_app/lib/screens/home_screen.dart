@@ -118,10 +118,18 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(
-            Icons.bluetooth,
-            color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
-            size: 40.0,
+          child: IconButton(
+            icon: Icon(
+              Icons.bluetooth,
+              color: BluetoothManager().connectedDevice != null ? Colors.lightBlue : Colors.red,
+              size: 30.0,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BluetoothScreen()),
+              );
+            },
           ),
         ),
       ],
