@@ -17,7 +17,8 @@ class BLEDataReceiver {
   Future<void> subscribeToData(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     for (BluetoothService service in services) {
-      if (service.uuid.toString().toLowerCase() == targetServiceUUID.toLowerCase()) {
+      if (service.uuid.toString().toLowerCase() ==
+          targetServiceUUID.toLowerCase()) {
         for (BluetoothCharacteristic characteristic in service.characteristics) {
           if (characteristic.uuid.toString().toLowerCase() ==
                   targetCharacteristicUUID.toLowerCase() &&
@@ -27,8 +28,28 @@ class BLEDataReceiver {
               // Convert the received List<int> to a string.
               String receivedData = utf8.decode(data);
               print("Received BLE data: $receivedData");
-              // Save the received data into a local file.
-              await FileStorage.writeValue(double.parse(receivedData));
+
+              // Filter out the default "0" value.
+              if (receivedData.trim() == "0" ||
+                  receivedData.trim() == "0.0") {
+                print("Ignoring default 0 value");
+                return;
+              }
+
+              // Parse the comma-separated values.
+              List<String> values = receivedData.split(',');
+              if (values.isNotEmpty) {
+                // Extract the first value.
+                double glucoseValue = double.tryParse(values[0].trim()) ?? 0.0;
+                if (glucoseValue == 0.0) {
+                  print("Ignoring parsed default 0 value");
+                  return;
+                }
+                // Save the glucose value into a local file.
+                await FileStorage.writeValue(glucoseValue);
+              } else {
+                print("Invalid data format received: $receivedData");
+              }
             });
             print("Subscribed to BLE data notifications.");
             return; // Exit after subscribing to the correct characteristic.

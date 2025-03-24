@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'home_screen.dart';
-import 'dart:async'; // Import for StreamSubscription
+import 'dart:async'; // For StreamSubscription
 import '../services/bluetooth_manager.dart';
 
 class BluetoothScreen extends StatefulWidget {
@@ -13,10 +13,10 @@ class BluetoothScreen extends StatefulWidget {
 }
 
 class _BluetoothScreenState extends State<BluetoothScreen> {
-  FlutterBluePlus flutterBlue = FlutterBluePlus();
+  final FlutterBluePlus flutterBlue = FlutterBluePlus();
   List<ScanResult> scanResults = [];
   BluetoothDevice? connectedDevice;
-  StreamSubscription<List<ScanResult>>? scanSubscription; // Subscription for scan results
+  StreamSubscription<List<ScanResult>>? scanSubscription;
 
   @override
   void initState() {
@@ -28,61 +28,66 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
 
   @override
   void dispose() {
-    // Cancel scan subscription but do NOT disconnect the device; the connection should persist.
+    // Cancel the scan subscription but do NOT disconnect the device; the connection should persist.
     scanSubscription?.cancel();
     super.dispose();
   }
 
-  // Request Bluetooth permissions dynamically
+  /// Request Bluetooth/location permissions dynamically on Android.
   Future<void> requestPermissions() async {
     await [
       Permission.bluetooth,
       Permission.bluetoothScan,
       Permission.bluetoothConnect,
-      Permission.locationWhenInUse
+      Permission.locationWhenInUse,
     ].request();
   }
 
-  // Start scanning for BLE devices
+  /// Start scanning for BLE devices.
   void startScan() async {
-    // Cancel any existing scan subscriptions to prevent multiple listeners
+    // Cancel any existing scan to prevent multiple listeners.
     await FlutterBluePlus.stopScan();
     scanSubscription?.cancel();
 
+    // Clear previous results in our UI
     scanResults.clear();
     if (mounted) {
-      setState(() {}); // Clear the UI list
+      setState(() {}); // Refresh UI
     }
 
+    // Start scanning for 5 seconds
     await FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
 
     // Listen to scan results and update the UI
-    scanSubscription = FlutterBluePlus.scanResults.listen((results) {
-      if (mounted) {
-        setState(() {
-          scanResults = results.where((r) => r.device.platformName.isNotEmpty).toList();
-        });
-      }
-    }, onError: (error) {
-      // TODO: Handle scan errors if necessary
-    });
+    scanSubscription = FlutterBluePlus.scanResults.listen(
+      (results) {
+        if (mounted) {
+          setState(() {
+            // Option A: Show all devices
+            scanResults = results;
+          });
+        }
+      },
+      onError: (error) {
+        // Handle scan errors if necessary
+        debugPrint("Scan error: $error");
+      },
+    );
   }
 
-  // Connect to a selected BLE device
+  /// Connect to the selected BLE device using the global BluetoothManager.
   void connectToDevice(BluetoothDevice device) async {
-    // Use the global BluetoothManager to connect
     await BluetoothManager().connectToDevice(device);
     if (mounted) {
       setState(() {
-        // Update local UI state based on the global connection
+        // Update local UI state based on the global connection.
         connectedDevice = BluetoothManager().connectedDevice;
       });
     }
   }
 
-  // Disconnect from the device
+  /// Disconnect from the currently connected device.
   Future<void> disconnectDevice() async {
-    // Use the global BluetoothManager to disconnect
     await BluetoothManager().disconnectDevice();
     if (mounted) {
       setState(() {
@@ -91,7 +96,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
     }
   }
 
-  // Helper method to build the AppBar.
+  /// Builds the custom AppBar with the logo and Bluetooth status icon.
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -125,7 +130,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // When a device is connected, show the connected UI.
+    // If a device is already connected, show "connected" UI
     if (connectedDevice != null) {
       return Scaffold(
         appBar: _buildAppBar(),
@@ -160,7 +165,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
       );
     }
 
-    // Otherwise, show the scanning UI.
+    // Otherwise, show the scanning UI
     return Scaffold(
       appBar: _buildAppBar(),
       body: Column(
@@ -176,16 +181,21 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
             child: ListView.builder(
               itemCount: scanResults.length,
               itemBuilder: (context, index) {
-                final device = scanResults[index].device;
+                final result = scanResults[index];
+                final device = result.device;
+
+                // The device name is often found in advertisementData.localName
+                final localName = result.advertisementData.localName;
+                final displayName =
+                    localName.isNotEmpty ? localName : "Unknown Device";
+
                 return Card(
                   color: Colors.white,
                   margin: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
                   child: ListTile(
                     title: Text(
-                      device.platformName.isNotEmpty
-                          ? device.platformName
-                          : "Unknown Device",
+                      displayName,
                       style: const TextStyle(color: Colors.black),
                     ),
                     subtitle: Text(
