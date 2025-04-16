@@ -1,0 +1,7 @@
+[
+{
+  "directory": "C:/Users/antho/KHealth/android_app/android/app/.cxx/RelWithDebInfo/m4r4c3x2/arm64-v8a",
+  "command": "C:\\Users\\antho\\AppData\\Local\\Android\\Sdk\\ndk\\25.1.8937393\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/antho/AppData/Local/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnative_code_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O2 -g -DNDEBUG -fPIC -o CMakeFiles\\native_code.dir\\native_code.c.o -c C:\\Users\\antho\\KHealth\\android_app\\android\\app\\src\\main\\cpp\\native_code.c",
+  "file": "C:\\Users\\antho\\KHealth\\android_app\\android\\app\\src\\main\\cpp\\native_code.c"
+}
+]
