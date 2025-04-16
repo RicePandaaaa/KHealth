@@ -1,0 +1,3 @@
+C:/Users/antho/KHealth/android_app/android/app/.cxx/Debug/32355s17/x86_64/CMakeFiles/native_code.dir
+C:/Users/antho/KHealth/android_app/android/app/.cxx/Debug/32355s17/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/antho/KHealth/android_app/android/app/.cxx/Debug/32355s17/x86_64/CMakeFiles/rebuild_cache.dir

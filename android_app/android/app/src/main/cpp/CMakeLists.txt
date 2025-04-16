@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.10.2)
 add_library(
         native_code
         SHARED
-        native_code.cpp
+        native_code.c
         # another_source_file.c
  )
 
