@@ -1,13 +1,8 @@
 /**
  * ESP32 Firmware to read NanoVNA V2 data via USB Host (CDC-ACM)
  * using chunked FIFO reads, processing points on-the-fly to find
- * the resonant frequency (minimum S11), and sending the result via BLE.
+ * the resonant frequency (S11), and sending the result via BLE.
  *
- * Sends configuration commands upon NanoVNA connection.
- * Does NOT store the full S11 sweep data.
- *
- * Current time: Sunday, April 20, 2025 at 5:15:32 PM CDT
- * Location: College Station, Texas, United States
  */
 
 #include <stdio.h>
