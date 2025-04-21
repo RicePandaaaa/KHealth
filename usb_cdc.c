@@ -1,11 +1,24 @@
+/**
+ * ESP32 Firmware to read NanoVNA V2 data via USB Host (CDC-ACM)
+ * using chunked FIFO reads, processing points on-the-fly to find
+ * the resonant frequency (minimum S11), and sending the result via BLE.
+ *
+ * Sends configuration commands upon NanoVNA connection.
+ * Does NOT store the full S11 sweep data.
+ *
+ * Current time: Sunday, April 20, 2025 at 5:15:32 PM CDT
+ * Location: College Station, Texas, United States
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h> // For PRIu32 etc.
-#include <math.h>     // For sqrt, log10, atan2, INFINITY, M_PI
+#include <math.h>     // For sqrt, log10, atan2, INFINITY, M_PI, isfinite
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include "nvs_flash.h"
+#include "esp_timer.h" // For timing measurements if needed
 
 // --- FreeRTOS ---
 #include "freertos/FreeRTOS.h"
@@ -20,51 +33,70 @@
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/ble_hs.h"
-#include "host/ble_att.h"         // For ble_att_svr_write_local() - Maybe not needed if only notifying
+#include "host/ble_att.h"          // For ble_att_svr_write_local() - Maybe not needed if only notifying
 #include "host/util/util.h"
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
 
 // --- Configuration ---
-#define APP_MAIN_TASK_PRIORITY  (tskIDLE_PRIORITY + 3)
-#define NANOVNA_TASK_PRIORITY   (APP_MAIN_TASK_PRIORITY + 1) // Task doing USB reads
-#define USB_HOST_TASK_PRIORITY  (NANOVNA_TASK_PRIORITY + 1) // USB library background task
+#define APP_MAIN_TASK_PRIORITY    (tskIDLE_PRIORITY + 3)
+#define NANOVNA_TASK_PRIORITY     (APP_MAIN_TASK_PRIORITY + 1) // Task doing USB reads
+#define USB_HOST_TASK_PRIORITY    (NANOVNA_TASK_PRIORITY + 1) // USB library background task
 #define NIMBLE_HOST_TASK_PRIORITY (USB_HOST_TASK_PRIORITY) // NimBLE background task priority
 
 // TODO: Confirm VID/PID for the mode where 0x18 command works!
-#define NANOVNA_VID         (0x04B4) // <<< YOUR OBSERVED VID
-#define NANOVNA_PID         (0x0008) // <<< YOUR OBSERVED PID
-#define NANOVNA_INTERFACE   (0)
+#define NANOVNA_VID           (0x04B4) // <<< YOUR OBSERVED VID
+#define NANOVNA_PID           (0x0008) // <<< YOUR OBSERVED PID
+#define NANOVNA_INTERFACE     (0)
+
+// --- Sweep Configuration (VALUES TO BE WRITTEN TO NANOVNA) ---
+#define CONFIGURED_SWEEP_START_HZ     (2200000000ULL) // 2.2 GHz (Use ULL suffix for uint64_t)
+#define CONFIGURED_SWEEP_STEP_HZ      (195312ULL)     // 1.955 MHz step (Use ULL suffix for uint64_t)
+#define CONFIGURED_SWEEP_POINTS       (1024)          // Number of points
+#define CONFIGURED_VALUES_PER_FREQ    (10)            // Values per frequency
+
+// --- Sweep Configuration (MATCHES VALUES WRITTEN ABOVE) ---
+// Use the configured values below for ESP32 internal calculations
+#define TOTAL_SWEEP_POINTS    (CONFIGURED_SWEEP_POINTS) // Use the configured value (1024)
+#define SWEEP_START_HZ        ((double)CONFIGURED_SWEEP_START_HZ) // Use for calculations if needed
+#define SWEEP_STEP_HZ         ((double)CONFIGURED_SWEEP_STEP_HZ)  // Use for calculations
+// SWEEP_STOP_HZ is calculated if needed: Start + (Points - 1) * Step
 
 // --- FIFO Read Configuration ---
-#define DFU_CMD_READFIFO    (0x18)
-#define FIFO_ADDR_VALUES    (0x30)
-#define NUM_VALUES          (200)   // How many 32-byte value blocks to read (e.g., 101 points)
-#define VALUE_SIZE          (32)    // Size of each block from FIFO
-#define EXPECTED_RX_BYTES   (NUM_VALUES * VALUE_SIZE) // Total bytes expected
+#define DFU_CMD_READFIFO      (0x18)
+#define FIFO_ADDR_VALUES      (0x30)
+#define VALUE_SIZE            (32)      // Size of each point's data block from FIFO
 
-#define TX_BUFFER_SIZE      (64)    // Buffer for sending commands (in cdc_acm_host_device_config_t)
-#define RX_BUFFER_SIZE      (EXPECTED_RX_BYTES + 256) // MUST be >= EXPECTED_RX_BYTES + overhead
-#define TX_CMD_BUFFER_SIZE  (10)    // Local buffer for constructing the command
-#define TX_TIMEOUT_MS       (1000)  // Timeout for sending command
-#define RX_TIMEOUT_MS       (5000)  // Timeout for waiting for *complete* FIFO data
+#define CHUNK_NUM_VALUES      (128)     // Points to read per USB transaction (KEEP THIS OR ADJUST AS NEEDED)
+// *** UPDATED NUM_CHUNKS based on 1024 points / 128 points/chunk ***
+#define NUM_CHUNKS            (TOTAL_SWEEP_POINTS / CHUNK_NUM_VALUES) // Should be 8 for 1024/128
 
-// --- Sweep Configuration (MUST MATCH NANOVNA SETUP) ---
-#define SWEEP_START_HZ      (10000000.0)   // UPDATED: 10 MHz (10,000,000 Hz)
-#define SWEEP_STOP_HZ       (3000000000.0) // UPDATED: 3 GHz (3,000,000,000 Hz)
-#define SWEEP_NUM_POINTS    (201)   // Number of points MUST match FIFO read count (now 201)
+// Check for divisibility
+#if (TOTAL_SWEEP_POINTS % CHUNK_NUM_VALUES != 0)
+#error "TOTAL_SWEEP_POINTS must be divisible by CHUNK_NUM_VALUES"
+#endif
+
+#define CHUNK_EXPECTED_BYTES  (CHUNK_NUM_VALUES * VALUE_SIZE) // Bytes expected PER CHUNK
+
+#define TX_BUFFER_SIZE        (64)      // Buffer for sending commands (in cdc_acm_host_device_config_t)
+// Adjust RX buffer size for ONE chunk + overhead
+#define RX_BUFFER_SIZE        (CHUNK_EXPECTED_BYTES + 256)
+#define TX_CMD_BUFFER_SIZE    (10)      // Local buffer for constructing commands
+#define TX_TIMEOUT_MS         (1000)    // Timeout for sending command
+#define RX_CHUNK_TIMEOUT_MS   (10000)   // Timeout for receiving ONE chunk (e.g., 10 seconds)
+
 
 // --- BLE Configuration ---
-#define BLE_DEVICE_NAME "ESP32_NanoVNA_Reader"
+#define BLE_DEVICE_NAME "ESP32_NanoVNA_Stream" // Updated name
 // Replace these with your own if you want
 static const ble_uuid128_t SERVICE_UUID = BLE_UUID128_INIT(
     0x4f, 0xaf, 0xc2, 0x01, 0x1f, 0xb5, 0x45, 0x9e,
-    0x8f, 0xcc, 0xc5, 0xc9, 0xc3, 0x31, 0x91, 0x4b
+    0x8f, 0xcc, 0xc5, 0xc9, 0xc3, 0x31, 0x91, 0x4b // Same UUIDs okay
 );
 static const ble_uuid128_t CHARACTERISTIC_UUID = BLE_UUID128_INIT(
     0xbe, 0xb5, 0x48, 0x3e, 0x36, 0xe1, 0x46, 0x88,
-    0xb7, 0xf5, 0xea, 0x07, 0x36, 0x1b, 0x26, 0xa8
+    0xb7, 0xf5, 0xea, 0x07, 0x36, 0x1b, 0x26, 0xa8 // Same UUIDs okay
 );
 #define BLE_TRIGGER_STRING "DATA REQUESTED"
 #define BLE_NOTIFY_BUF_SIZE 100 // Max size for notification string
@@ -78,23 +110,25 @@ static const char *TAG_USB = "USB_HOST_LIB"; // For usb_lib_task
 // --- Shared Resources ---
 // USB/NanoVNA related
 static SemaphoreHandle_t device_disconnected_sem; // Signals device disconnection
-static SemaphoreHandle_t fifo_data_ready_sem;   // Signals complete FIFO block received
-static uint8_t fifo_rx_buffer[EXPECTED_RX_BYTES]; // Buffer to accumulate FIFO data
-static volatile size_t current_rx_count = 0;      // Bytes received for current FIFO read
+static SemaphoreHandle_t fifo_data_ready_sem;   // Signals complete FIFO CHUNK received
+// Buffer for ONE CHUNK of raw data
+static uint8_t chunk_rx_buffer[CHUNK_EXPECTED_BYTES];
+static volatile size_t current_chunk_rx_count = 0;     // Bytes received for current chunk
 static volatile cdc_acm_dev_hdl_t current_cdc_dev = NULL; // Store current device handle (use carefully)
 
 // BLE related
-static uint16_t gatt_chr_handle;            // Characteristic handle for notifications
+static uint16_t gatt_chr_handle;                    // Characteristic handle for notifications
 static volatile uint16_t current_conn_handle = BLE_HS_CONN_HANDLE_NONE; // Store current connection handle
 static char ble_notify_buffer[BLE_NOTIFY_BUF_SIZE]; // Buffer for formatting BLE notification string
 
 // Synchronization between BLE and NanoVNA Task
 static SemaphoreHandle_t trigger_nanovna_read_sem; // Signaled by BLE write to trigger USB read
 
-// --- S11 Calculation Storage ---
-// Made static to avoid large stack allocation in processing function
-static double s11Magnitudes[NUM_VALUES];
-static double s11Phases[NUM_VALUES];
+// --- Stream Processing State ---
+// Variables to store the minimum S11 found *during* the sweep
+static volatile double current_min_s11_db = INFINITY;
+static volatile double freq_at_min_s11_hz = 0.0;
+static volatile int points_processed_count = 0; // To track how many points were processed
 
 // --- Forward Declarations ---
 static void nimble_host_task(void *param);
@@ -104,43 +138,46 @@ static int gatt_chr_access_cb(uint16_t conn_handle_, uint16_t attr_handle, struc
 static int gap_event_handler(struct ble_gap_event *event, void *arg);
 static void ble_app_on_sync(void);
 static void ble_app_on_reset(int reason);
+static bool process_chunk_and_update_min(int chunk_index); // NEW: Processes chunk and updates running minimum
+
 
 // =========================================================================
-// == USB Host Callbacks and Processing Logic                             ==
+// == USB Host Callbacks and Processing Logic                           ==
 // =========================================================================
 
 /**
- * @brief USB Data received callback - Accumulates FIFO data
+ * @brief USB Data received callback - Accumulates CHUNK data
  */
 static bool handle_usb_rx(const uint8_t *data, size_t data_len, void *user_arg)
 {
-    // Check if we are expecting FIFO data
-    if (current_rx_count < EXPECTED_RX_BYTES) {
+    // Check if we are expecting data for the current chunk
+    if (current_chunk_rx_count < CHUNK_EXPECTED_BYTES) {
         size_t bytes_to_copy = data_len;
-        if (current_rx_count + bytes_to_copy > EXPECTED_RX_BYTES) {
-            ESP_LOGW(TAG_NANO, "RX Overflow: Received %d, already have %d, expected %d total. Truncating.",
-                     data_len, current_rx_count, EXPECTED_RX_BYTES);
-            bytes_to_copy = EXPECTED_RX_BYTES - current_rx_count;
+        if (current_chunk_rx_count + bytes_to_copy > CHUNK_EXPECTED_BYTES) {
+            ESP_LOGW(TAG_NANO, "Chunk RX Overflow: Received %d, have %d, expected %d. Truncating.",
+                     (int)data_len, (int)current_chunk_rx_count, (int)CHUNK_EXPECTED_BYTES);
+            bytes_to_copy = CHUNK_EXPECTED_BYTES - current_chunk_rx_count;
         }
 
         if (bytes_to_copy > 0) {
-            memcpy(fifo_rx_buffer + current_rx_count, data, bytes_to_copy);
-            current_rx_count += bytes_to_copy;
+            memcpy(chunk_rx_buffer + current_chunk_rx_count, data, bytes_to_copy);
+            current_chunk_rx_count += bytes_to_copy;
         }
 
-        // Check if we have received the complete block
-        if (current_rx_count >= EXPECTED_RX_BYTES) {
-            ESP_LOGI(TAG_NANO, "Complete FIFO block (%d bytes) received from USB.", EXPECTED_RX_BYTES);
+        // Check if we have received the complete CHUNK
+        if (current_chunk_rx_count >= CHUNK_EXPECTED_BYTES) {
+            // ESP_LOGD(TAG_NANO, "Complete chunk received (%d bytes).", CHUNK_EXPECTED_BYTES); // Use Debug level
             BaseType_t higher_task_woken = pdFALSE;
             xSemaphoreGiveFromISR(fifo_data_ready_sem, &higher_task_woken);
             // No need to yield from ISR if giving to a normal task
         }
     } else {
-         ESP_LOGW(TAG_NANO, "Unexpected USB RX data (%d bytes) received.", data_len);
-         ESP_LOG_BUFFER_HEXDUMP(TAG_NANO, data, data_len, ESP_LOG_WARN);
+         ESP_LOGW(TAG_NANO, "Unexpected USB RX data (%d bytes) received after chunk completion.", (int)data_len);
+         // ESP_LOG_BUFFER_HEXDUMP(TAG_NANO, data, data_len, ESP_LOG_WARN); // Can be noisy
     }
-    return true;
+    return true; // Consume the data regardless
 }
+
 
 /**
  * @brief USB Device event callback
@@ -153,13 +190,13 @@ static void handle_usb_event(const cdc_acm_host_dev_event_data_t *event, void *u
         if (current_cdc_dev == event->data.cdc_hdl) { // Check if it's the device we were using
             current_cdc_dev = NULL; // Clear global handle
              // Reset rx count in case disconnect happened mid-read
-             current_rx_count = 0;
+             current_chunk_rx_count = 0;
             // Attempt to close handle (might already be closing)
             esp_err_t close_err = cdc_acm_host_close(event->data.cdc_hdl);
             if (close_err != ESP_OK && close_err != ESP_ERR_INVALID_STATE && close_err != ESP_ERR_NOT_FOUND) {
                 ESP_LOGE(TAG_NANO, "Error closing CDC handle in disconnect event: %s", esp_err_to_name(close_err));
             }
-             xSemaphoreGive(device_disconnected_sem); // Signal the main loop
+            xSemaphoreGive(device_disconnected_sem); // Signal the main loop
         } else {
              ESP_LOGW(TAG_NANO,"Disconnect event for an unknown/different handle (%p)", event->data.cdc_hdl);
         }
@@ -167,10 +204,9 @@ static void handle_usb_event(const cdc_acm_host_dev_event_data_t *event, void *u
     case CDC_ACM_HOST_ERROR:
          ESP_LOGE(TAG_NANO, "CDC-ACM error event occurred: %s (Handle: %p)", esp_err_to_name(event->data.error), event->data.cdc_hdl);
          // Treat error as potential disconnection? Difficult to recover reliably.
-         // Maybe signal disconnect here too?
          if (current_cdc_dev == event->data.cdc_hdl) {
             current_cdc_dev = NULL;
-            current_rx_count = 0;
+            current_chunk_rx_count = 0;
              esp_err_t close_err = cdc_acm_host_close(event->data.cdc_hdl);
              if (close_err != ESP_OK && close_err != ESP_ERR_INVALID_STATE && close_err != ESP_ERR_NOT_FOUND) {
                  ESP_LOGE(TAG_NANO, "Error closing CDC handle on error event: %s", esp_err_to_name(close_err));
@@ -185,116 +221,96 @@ static void handle_usb_event(const cdc_acm_host_dev_event_data_t *event, void *u
 }
 
 /**
- * @brief Processes the received FIFO data and calculates S11 parameters
- * @return true if processing was successful (found min), false otherwise
+ * @brief Processes ONE chunk of received FIFO data point-by-point,
+ * updating the global minimum S11 and corresponding frequency.
+ * @param chunk_index The index of the current chunk (0 to NUM_CHUNKS - 1)
+ * @return true if processing was successful, false on critical error (like bad index)
  */
-static bool process_fifo_data_and_prepare_notify(void)
+static bool process_chunk_and_update_min(int chunk_index)
 {
-    ESP_LOGI(TAG_NANO, "Processing %d bytes of FIFO data (%d points)...", EXPECTED_RX_BYTES, NUM_VALUES);
-    bool success = false;
-    double frequencies[NUM_VALUES]; // Array to store calculated frequencies for each point
+    ESP_LOGD(TAG_NANO, "Processing chunk %d for minimum S11...", chunk_index);
+    bool success = true;
 
-    for (int i = 0; i < NUM_VALUES; ++i) {
-        size_t offset = i * VALUE_SIZE;
-        // Basic bounds check already assumes EXPECTED_RX_BYTES is correct
-        // if (offset + VALUE_SIZE > EXPECTED_RX_BYTES) { ... } // This check is technically redundant if loop condition is correct
+    for (int i = 0; i < CHUNK_NUM_VALUES; ++i) {
+        size_t buffer_offset = i * VALUE_SIZE; // Offset within the chunk_rx_buffer
 
         int32_t fwd0Re, fwd0Im, rev0Re, rev0Im;
-        uint16_t freqIndex; // Variable to hold the frequency index
+        uint16_t freqIndex; // Variable to hold the frequency index from VNA data
+
+        // Basic bounds check for buffer read
+        if (buffer_offset + VALUE_SIZE > CHUNK_EXPECTED_BYTES) {
+            ESP_LOGE(TAG_NANO, "Internal Error: Buffer offset out of bounds during chunk processing!");
+            success = false;
+            break; // Stop processing this chunk
+        }
 
         // Parse data using memcpy (assumes correct endianness - usually little-endian for STM32/ESP32)
-        memcpy(&fwd0Re, fifo_rx_buffer + offset + 0, 4);
-        memcpy(&fwd0Im, fifo_rx_buffer + offset + 4, 4);
-        memcpy(&rev0Re, fifo_rx_buffer + offset + 8, 4);
-        memcpy(&rev0Im, fifo_rx_buffer + offset + 12, 4);
-        memcpy(&freqIndex, fifo_rx_buffer + offset + 24, 2); // <<< Parse freqIndex
+        memcpy(&fwd0Re,   chunk_rx_buffer + buffer_offset + 0, 4);
+        memcpy(&fwd0Im,   chunk_rx_buffer + buffer_offset + 4, 4);
+        memcpy(&rev0Re,   chunk_rx_buffer + buffer_offset + 8, 4);
+        memcpy(&rev0Im,   chunk_rx_buffer + buffer_offset + 12, 4);
+        memcpy(&freqIndex, chunk_rx_buffer + buffer_offset + 24, 2); // Parse freqIndex
 
-        // --- Calculate Frequency from Index ---
-        // Ensure index is within expected bounds (optional sanity check)
-        if (freqIndex >= SWEEP_NUM_POINTS) {
-             ESP_LOGW(TAG_NANO, "Warning: freqIndex %u out of bounds (0-%d) at loop index %d",
-                      freqIndex, SWEEP_NUM_POINTS - 1, i);
-             // Decide how to handle: use loop index 'i', clamp, or skip point? Using 'i' for now.
-             freqIndex = i;
+        // --- Use freqIndex to determine storage location and calculate frequency ---
+        // Important: Assumes freqIndex corresponds to the overall sweep point (0 to TOTAL_SWEEP_POINTS-1)
+        if (freqIndex >= TOTAL_SWEEP_POINTS) {
+            ESP_LOGW(TAG_NANO, "Warning: freqIndex %u out of bounds (0-%d) in chunk %d, point %d. Skipping point.",
+                     freqIndex, TOTAL_SWEEP_POINTS - 1, chunk_index, i);
+            continue; // Skip this point if index is bad, but don't fail the whole chunk unless necessary
         }
 
-        double currentFreqHz = 0;
-        if (SWEEP_NUM_POINTS <= 1) {
-             currentFreqHz = SWEEP_START_HZ; // Handle single point sweep
-        } else {
-             // Linear sweep calculation: Freq = Start + Index * (Stop - Start) / (TotalPoints - 1)
-             currentFreqHz = SWEEP_START_HZ + (double)freqIndex * (SWEEP_STOP_HZ - SWEEP_START_HZ) / (double)(SWEEP_NUM_POINTS - 1);
-        }
-        frequencies[i] = currentFreqHz; // Store the calculated frequency
+        // --- Calculate Frequency from Index using CONFIGURED Step ---
+        // Freq = Configured_Start + Index * Configured_Step
+        double currentFreqHz = (double)CONFIGURED_SWEEP_START_HZ + (double)freqIndex * (double)CONFIGURED_SWEEP_STEP_HZ;
 
         // --- Calculate S11 ---
         double a = (double)rev0Re; double b = (double)rev0Im;
         double c = (double)fwd0Re; double d = (double)fwd0Im;
         double denom = c * c + d * d;
         double s11_re = 0.0, s11_im = 0.0;
+        double current_s11_mag_db = INFINITY; // Default to infinity for this point
 
-        if (denom > 1e-12) { // Check for non-zero denominator (increased threshold slightly)
+        if (denom > 1e-12) { // Check for non-zero denominator
             s11_re = (a * c + b * d) / denom;
             s11_im = (b * c - a * d) / denom;
+
+            // --- Calculate Magnitude (dB) ---
+            double mag_sq = s11_re * s11_re + s11_im * s11_im;
+            if (mag_sq > 1e-18) { // Avoid log10(0) for valid points
+                current_s11_mag_db = 10.0 * log10(mag_sq); // Use 10*log10(mag_sq) = 20*log10(mag)
+            } else {
+                current_s11_mag_db = -INFINITY; // Treat as perfect match or below noise floor
+            }
         } else {
-             ESP_LOGW(TAG_NANO,"S11 calculation: Near-zero denominator at index %d (freqIndex %u)", i, freqIndex);
-             // Maybe set S11 to 0 or a very high magnitude? Setting mag to +INF for now.
+             // Denominator near zero -> S11 is effectively infinite magnitude
+             current_s11_mag_db = INFINITY;
+             // ESP_LOGW(TAG_NANO,"S11 calculation: Near-zero denominator at freqIndex %u", freqIndex);
         }
 
-        // --- Calculate Magnitude (dB) and Phase (degrees) ---
-        double mag_sq = s11_re * s11_re + s11_im * s11_im;
-        if (denom <= 1e-12) { // If denominator was zero, force magnitude high
-            s11Magnitudes[i] = INFINITY;
-        } else if (mag_sq > 1e-18) { // Avoid log10(0) for valid points
-             s11Magnitudes[i] = 10.0 * log10(mag_sq); // Use 10*log10(mag_sq) = 20*log10(mag)
-        } else {
-             s11Magnitudes[i] = -INFINITY; // Treat as perfect match or below noise floor
+        ESP_LOGI(TAG_NANO, "current_s11_mag_db: %.9f dB at %.9f MHz (Point Index %u)",
+                 current_s11_mag_db, currentFreqHz / 1e6, freqIndex);
+        // --- Update Running Minimum ---
+        // We only update if the current point's magnitude is finite and less than the minimum found so far
+        if (isfinite(current_s11_mag_db) && current_s11_mag_db < current_min_s11_db) {
+            current_min_s11_db = current_s11_mag_db;
+            freq_at_min_s11_hz = currentFreqHz;
+            // Optional: Log when the minimum is updated
+             ESP_LOGD(TAG_NANO, "New min S11: %.4f dB at %.6f MHz (Point Index %u)",
+                      current_min_s11_db, freq_at_min_s11_hz / 1e6, freqIndex);
         }
-        s11Phases[i] = atan2(s11_im, s11_re) * 180.0 / M_PI;
 
-        // Optional detailed logging per point:
-        // ESP_LOGD(TAG_NANO, "Idx %d (FqIdx %u, %.2f MHz): S11: %.2f dB, %.2f deg",
-        //          i, freqIndex, currentFreqHz / 1e6, s11Magnitudes[i], s11Phases[i]);
+        // --- Phase calculation (optional, can be removed if not needed) ---
+        // double current_s11_phase_deg = atan2(s11_im, s11_re) * 180.0 / M_PI;
 
-    } // End for loop
+        // Increment processed point counter (regardless of whether it was the minimum)
+        points_processed_count++;
 
-    // --- Find the resonant block (minimum S11 magnitude) ---
-    double minS11 = INFINITY; // Initialize with positive infinity
-    int minIndex = -1;
-    for (int i = 0; i < NUM_VALUES; i++) {
-        // Find the minimum *finite* S11 magnitude
-        if (isfinite(s11Magnitudes[i]) && s11Magnitudes[i] < minS11) {
-            minS11 = s11Magnitudes[i];
-            minIndex = i;
-        }
-    }
+        // Optional detailed logging per point: Use Verbose level
+         //ESP_LOGV(TAG_NANO, "Chunk %d, Idx %d (FqIdx %u, %.2f MHz): S11: %.4f dB",
+         //         chunk_index, i, freqIndex, currentFreqHz / 1e6, current_s11_mag_db);
 
-    // --- Prepare notification string ---
-    memset(ble_notify_buffer, 0, BLE_NOTIFY_BUF_SIZE);
-    if (minIndex >= 0) {
-        // We found a valid minimum S11 point
-        double resonantFreqHz = frequencies[minIndex]; // Get the frequency at the minimum index
-
-        // Log the result
-        ESP_LOGI(TAG_NANO, "Resonant Point Found:");
-        ESP_LOGI(TAG_NANO, "  Index: %d", minIndex);
-        ESP_LOGI(TAG_NANO, "  Frequency: %.3f MHz", resonantFreqHz / 1e6);
-        ESP_LOGI(TAG_NANO, "  Min S11 Mag: %.2f dB", s11Magnitudes[minIndex]);
-        ESP_LOGI(TAG_NANO, "  Phase @ Min Mag: %.2f deg", s11Phases[minIndex]);
-
-        // Format notification string: "FreqMHz: MagdB @ PhaseDeg"
-        // Adjust precision (%.xf) as needed to fit BLE_NOTIFY_BUF_SIZE
-        snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "%.1f,%.1f",
-                 resonantFreqHz / 1e9,      // Freq in GHz with 1 decimal place
-                 s11Magnitudes[minIndex]);  // Phase in degrees with 1 decimal place
-        success = true;
-    } else {
-        // No valid minimum S11 point was found (e.g., all were infinite or NaN)
-        ESP_LOGW(TAG_NANO, "No valid S11 minimum found across %d points.", NUM_VALUES);
-        snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "Error: No resonance found");
-        success = false;
-    }
-    return success;
+    } // End for loop over points in chunk
+    return success; // Return true if loop completed (even if some points were skipped)
 }
 
 // =========================================================================
@@ -329,7 +345,7 @@ static int gatt_chr_access_cb(uint16_t conn_handle_,
                          ESP_LOGW(TAG_BLE, "Ignoring unknown write data.");
                      }
                  } else {
-                      ESP_LOGE(TAG_BLE, "Failed to read mbuf flat (rc=%d)", rc);
+                     ESP_LOGE(TAG_BLE, "Failed to read mbuf flat (rc=%d)", rc);
                  }
             }
              return 0; // Success for write operation
@@ -337,17 +353,14 @@ static int gatt_chr_access_cb(uint16_t conn_handle_,
 
          case BLE_GATT_ACCESS_OP_READ_CHR: {
              ESP_LOGI(TAG_BLE, "GATT Read received (conn=0x%x, attr=0x%x)", conn_handle_, attr_handle);
-             // Optionally return status or last result. For now, just return empty/success.
-             // Could potentially read 'ble_notify_buffer' here if needed.
-             // Example: Respond with "Ready" or the last result
-             const char* resp = "Status: Ready";
-             int rc = os_mbuf_append(ctxt->om, resp, strlen(resp));
+             // Optionally return status or last result. For now, just return latest buffer.
+             int rc = os_mbuf_append(ctxt->om, ble_notify_buffer, strlen(ble_notify_buffer));
              return (rc == 0) ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
          }
 
-        default:
-            ESP_LOGW(TAG_BLE,"Unhandled GATT Op: %d", ctxt->op);
-            return BLE_ATT_ERR_UNLIKELY;
+         default:
+             ESP_LOGW(TAG_BLE,"Unhandled GATT Op: %d", ctxt->op);
+             return BLE_ATT_ERR_UNLIKELY;
     }
 }
 
@@ -418,9 +431,9 @@ static int gap_event_handler(struct ble_gap_event *event, void *arg)
                       event->mtu.conn_handle, event->mtu.value);
              return 0;
 
-        default:
-            ESP_LOGD(TAG_BLE, "Unhandled GAP Event: %d", event->type);
-            return 0;
+         default:
+             ESP_LOGD(TAG_BLE, "Unhandled GAP Event: %d", event->type);
+             return 0;
     }
 }
 
@@ -431,7 +444,6 @@ static void ble_app_on_sync(void)
 {
     int rc;
     // Use default address type (Public or Random Static)
-    // This makes sure the controller has an address ready
     rc = ble_hs_util_ensure_addr(0);
     assert(rc == 0);
 
@@ -441,8 +453,7 @@ static void ble_app_on_sync(void)
     adv_params.conn_mode = BLE_GAP_CONN_MODE_UND; // Undirected Connectable
     adv_params.disc_mode = BLE_GAP_DISC_MODE_GEN; // General Discoverable
 
-    // *** FIX IS HERE ***
-    // Replace ble_hs_cfg.addr_type with a constant like BLE_OWN_ADDR_PUBLIC
+    // Specify Public Address type (or determine dynamically if needed)
     rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC,      // Specify Public Address type
                            NULL,                     // No specific peer address
                            BLE_HS_FOREVER,           // Advertise indefinitely
@@ -451,7 +462,6 @@ static void ble_app_on_sync(void)
                            NULL);
     if (rc != 0) {
         ESP_LOGE(TAG_BLE, "Error starting advertising; rc=%d", rc);
-        // Consider adding a retry mechanism or delay here if startup fails repeatedly
     } else {
         ESP_LOGI(TAG_BLE, "BLE Advertising started");
     }
@@ -463,6 +473,7 @@ static void ble_app_on_reset(int reason)
 {
     ESP_LOGE(TAG_BLE, "Resetting BLE stack; reason=%d", reason);
 }
+
 
 // =========================================================================
 // == Background Tasks                                                    ==
@@ -490,14 +501,14 @@ static void usb_lib_task(void *param)
         uint32_t event_flags;
         esp_err_t err = usb_host_lib_handle_events(portMAX_DELAY, &event_flags);
          if (err != ESP_OK && err != ESP_ERR_TIMEOUT) {
-            ESP_LOGE(TAG_USB, "usb_host_lib_handle_events failed: %s", esp_err_to_name(err));
+             ESP_LOGE(TAG_USB, "usb_host_lib_handle_events failed: %s", esp_err_to_name(err));
         }
 
-        // Check if all clients are gone (e.g., device disconnected and closed by nanovna_task/event_handler)
+        // Check if all clients are gone (e.g., device disconnected and closed)
         if (event_flags & USB_HOST_LIB_EVENT_FLAGS_NO_CLIENTS) {
             ESP_LOGI(TAG_USB, "No clients registered, freeing USB devices...");
            if (usb_host_device_free_all() != ESP_OK){
-                ESP_LOGW(TAG_USB,"Failed to free all USB devices");
+               ESP_LOGW(TAG_USB,"Failed to free all USB devices");
            };
         }
         // Check if all devices are free (often follows NO_CLIENTS)
@@ -511,7 +522,8 @@ static void usb_lib_task(void *param)
 
 
 /**
- * @brief Task managing NanoVNA connection and triggered reads
+ * @brief Task managing NanoVNA connection and CHUNKED triggered reads
+ * Processes points on-the-fly to find minimum S11.
  */
 static void nanovna_control_task(void *param)
 {
@@ -526,7 +538,7 @@ static void nanovna_control_task(void *param)
          const cdc_acm_host_device_config_t dev_config = {
              .connection_timeout_ms = 5000,
              .out_buffer_size = TX_BUFFER_SIZE,
-             .in_buffer_size = RX_BUFFER_SIZE,
+             .in_buffer_size = RX_BUFFER_SIZE, // Sized for ONE CHUNK
              .event_cb = handle_usb_event,
              .data_cb = handle_usb_rx,
              .user_arg = NULL
@@ -553,80 +565,206 @@ static void nanovna_control_task(void *param)
          }
          vTaskDelay(pdMS_TO_TICKS(100)); // Short delay
 
-         // --- Inner loop: Wait for BLE trigger and perform read ---
+         // ********************************************************************
+         // ** START: ADDED CONFIGURATION COMMANDS                          **
+         // ********************************************************************
+         ESP_LOGI(TAG_NANO, "Sending configuration commands...");
+
+         // Command sequences based on previous analysis
+         // sweepStartHz = 2,200,000,000 -> WRITE8 @ Addr 00
+         const uint8_t cmd_set_start_hz[] = {0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x83, 0x21, 0x56, 0x00};
+         // sweepStepHz = 391,000 -> WRITE8 @ Addr 10
+         const uint8_t cmd_set_step_hz[] = {0x23, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0xF7, 0x58};
+         // sweepPoints = 1024 -> WRITE2 @ Addr 20
+         const uint8_t cmd_set_points[] = {0x21, 0x20, 0x04, 0x00};
+         // valuesPerFrequency = 10 -> WRITE2 @ Addr 22
+         const uint8_t cmd_set_vals_per_freq[] = {0x21, 0x22, 0x00, 0x0A};
+
+         bool config_ok = true;
+
+         ESP_LOGI(TAG_NANO, "Setting Sweep Start Frequency...");
+         err = cdc_acm_host_data_tx_blocking(current_cdc_dev, cmd_set_start_hz, sizeof(cmd_set_start_hz), TX_TIMEOUT_MS);
+         if (err != ESP_OK) {
+             ESP_LOGE(TAG_NANO, "Failed to send sweepStartHz config: %s", esp_err_to_name(err));
+             config_ok = false;
+         }
+         vTaskDelay(pdMS_TO_TICKS(50)); // Small delay between commands
+
+         if (config_ok) {
+             ESP_LOGI(TAG_NANO, "Setting Sweep Step Frequency...");
+             err = cdc_acm_host_data_tx_blocking(current_cdc_dev, cmd_set_step_hz, sizeof(cmd_set_step_hz), TX_TIMEOUT_MS);
+             if (err != ESP_OK) {
+                 ESP_LOGE(TAG_NANO, "Failed to send sweepStepHz config: %s", esp_err_to_name(err));
+                 config_ok = false;
+             }
+         }
+         vTaskDelay(pdMS_TO_TICKS(50)); // Small delay between commands
+
+         if (config_ok) {
+             ESP_LOGI(TAG_NANO, "Setting Sweep Points...");
+             err = cdc_acm_host_data_tx_blocking(current_cdc_dev, cmd_set_points, sizeof(cmd_set_points), TX_TIMEOUT_MS);
+             if (err != ESP_OK) {
+                 ESP_LOGE(TAG_NANO, "Failed to send sweepPoints config: %s", esp_err_to_name(err));
+                 config_ok = false;
+             }
+         }
+         vTaskDelay(pdMS_TO_TICKS(50)); // Small delay between commands
+
+         if (config_ok) {
+             ESP_LOGI(TAG_NANO, "Setting Values Per Frequency...");
+             err = cdc_acm_host_data_tx_blocking(current_cdc_dev, cmd_set_vals_per_freq, sizeof(cmd_set_vals_per_freq), TX_TIMEOUT_MS);
+             if (err != ESP_OK) {
+                 ESP_LOGE(TAG_NANO, "Failed to send valuesPerFrequency config: %s", esp_err_to_name(err));
+                 config_ok = false;
+             }
+         }
+
+         if (config_ok) {
+             ESP_LOGI(TAG_NANO, "Configuration commands sent successfully.");
+         } else {
+             ESP_LOGE(TAG_NANO, "Configuration failed! Check connection and device state.");
+             // Decide how to handle config failure - maybe disconnect and retry?
+             // For now, we'll proceed, but the device might not be configured correctly.
+         }
+         // ********************************************************************
+         // ** END: ADDED CONFIGURATION COMMANDS                            **
+         // ********************************************************************
+
+
+         // --- Inner loop: Wait for BLE trigger and perform CHUNKED read ---
          while (current_cdc_dev != NULL) {
-             ESP_LOGI(TAG_NANO, "Waiting for BLE trigger to read FIFO...");
+             ESP_LOGI(TAG_NANO, "Waiting for BLE trigger to read %d points in %d chunks...", TOTAL_SWEEP_POINTS, NUM_CHUNKS);
              // Wait indefinitely for the trigger semaphore from BLE callback
              if (xSemaphoreTake(trigger_nanovna_read_sem, portMAX_DELAY) == pdTRUE) {
-                 ESP_LOGI(TAG_NANO, "BLE trigger received!");
+                 ESP_LOGI(TAG_NANO, "BLE trigger received! Starting chunked read and on-the-fly minimum S11 calculation...");
 
-                 // Check again if device is still valid before proceeding
-                 if (current_cdc_dev == NULL) {
-                     ESP_LOGW(TAG_NANO,"Device disconnected before read could start.");
-                     break; // Exit inner loop, outer loop will handle reconnect
-                 }
+                 // --- RESET stream processing state for this sweep ---
+                 current_min_s11_db = INFINITY;
+                 freq_at_min_s11_hz = 0.0;
+                 points_processed_count = 0;
+                 // ----------------------------------------------------
 
-                 // Prepare the READFIFO command
-                 uint8_t fifoCmd[3] = {DFU_CMD_READFIFO, FIFO_ADDR_VALUES, NUM_VALUES & 0xFF};
-                 ESP_LOGI(TAG_NANO, "Sending READFIFO command (0x%02X, 0x%02X, 0x%02X) for %d values",
-                          fifoCmd[0], fifoCmd[1], fifoCmd[2], NUM_VALUES);
+                 bool read_error = false;
+                 // Optional: Add overall timeout start time
+                 // int64_t start_time = esp_timer_get_time();
 
-                 // Reset receive state
-                 current_rx_count = 0;
-                 xSemaphoreTake(fifo_data_ready_sem, 0); // Clear stale signal
+                 // Clear the FIFO (opcode 0x20 = WRITE, 0x30 = FIFO_ADDR_VALUES, 0x00 = dummy)
+                uint8_t clear_fifo_cmd[] = { 0x20, FIFO_ADDR_VALUES, 0x00 };
+                esp_err_t err = cdc_acm_host_data_tx_blocking(
+                    current_cdc_dev,
+                    clear_fifo_cmd,
+                    sizeof(clear_fifo_cmd),
+                    TX_TIMEOUT_MS
+                );
+                if (err != ESP_OK) {
+                    ESP_LOGE(TAG_NANO, "Failed to clear FIFO: %s", esp_err_to_name(err));
+                    // handle error…
+                }
 
-                 // Send the command
-                 err = cdc_acm_host_data_tx_blocking(current_cdc_dev, fifoCmd, sizeof(fifoCmd), TX_TIMEOUT_MS);
+                 for (int chunk = 0; chunk < NUM_CHUNKS; ++chunk) {
+                     // Check if device disconnected during multi-chunk read
+                     if (current_cdc_dev == NULL) {
+                         ESP_LOGW(TAG_NANO,"Device disconnected during chunk read (%d/%d).", chunk + 1, NUM_CHUNKS);
+                         read_error = true;
+                         break; // Exit chunk loop
+                     }
 
-                 if (err != ESP_OK) {
-                     ESP_LOGE(TAG_NANO, "Failed to send READFIFO command: %s", esp_err_to_name(err));
-                     // Assume disconnection or serious error, break inner loop
-                     // handle_usb_event should signal device_disconnected_sem if applicable
-                     break;
-                 }
+                     // Prepare the READFIFO command for the current chunk
+                     // NOTE: NanoVNA expects number of POINTS for 0x18 command, not bytes.
+                     uint8_t fifoCmd[3] = {DFU_CMD_READFIFO, FIFO_ADDR_VALUES, CHUNK_NUM_VALUES & 0xFF};
+                     ESP_LOGI(TAG_NANO, "Requesting Chunk %d/%d (%d points)...", chunk + 1, NUM_CHUNKS, CHUNK_NUM_VALUES);
 
-                 // Wait for the complete response data
-                 ESP_LOGI(TAG_NANO, "Command sent. Waiting for %d bytes of FIFO data...", EXPECTED_RX_BYTES);
-                 BaseType_t got_semaphore = xSemaphoreTake(fifo_data_ready_sem, pdMS_TO_TICKS(RX_TIMEOUT_MS));
+                     // Reset receive state for the chunk
+                     current_chunk_rx_count = 0;
+                     xSemaphoreTake(fifo_data_ready_sem, 0); // Clear stale signal before waiting
 
-                 if (got_semaphore == pdTRUE && current_rx_count >= EXPECTED_RX_BYTES) {
-                      ESP_LOGI(TAG_NANO, "FIFO data received successfully via USB.");
-                      // Process the received data and prepare notification string
-                      bool processing_ok = process_fifo_data_and_prepare_notify();
+                     // Send the command
+                     err = cdc_acm_host_data_tx_blocking(current_cdc_dev, fifoCmd, sizeof(fifoCmd), TX_TIMEOUT_MS);
+                     if (err != ESP_OK) {
+                         ESP_LOGE(TAG_NANO, "Failed to send READFIFO command for chunk %d: %s", chunk + 1, esp_err_to_name(err));
+                         read_error = true;
+                         break; // Exit chunk loop on TX error
+                     }
 
-                      // Send notification via BLE if client connected
-                      if (current_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-                          ESP_LOGI(TAG_NANO,"Sending BLE Notification: \"%s\"", ble_notify_buffer);
-                          struct os_mbuf *om = ble_hs_mbuf_from_flat(ble_notify_buffer, strlen(ble_notify_buffer));
-                           if (om) {
-                               // Use the global characteristic handle 'gatt_chr_handle'
-                               int rc = ble_gatts_notify_custom(current_conn_handle, gatt_chr_handle, om);
-                               if (rc != 0) {
-                                   ESP_LOGE(TAG_NANO, "BLE notify failed; rc=%d", rc);
-                                    // If notify fails (e.g., client disconnected just now), handle might become invalid soon.
-                                }
-                           } else {
-                                ESP_LOGE(TAG_NANO,"Failed to allocate mbuf for BLE notification");
-                           }
-                      } else {
-                           ESP_LOGW(TAG_NANO,"No BLE client connected, cannot send notification.");
-                      }
+                     // Wait for the complete chunk data
+                     // ESP_LOGD(TAG_NANO, "Waiting for %d bytes for chunk %d...", CHUNK_EXPECTED_BYTES, chunk + 1);
+                     BaseType_t got_semaphore = xSemaphoreTake(fifo_data_ready_sem, pdMS_TO_TICKS(RX_CHUNK_TIMEOUT_MS));
+
+                     if (got_semaphore == pdTRUE && current_chunk_rx_count >= CHUNK_EXPECTED_BYTES) {
+                         // Double check count, semaphore might be given slightly early in some scenarios?
+                         if (current_chunk_rx_count < CHUNK_EXPECTED_BYTES) {
+                             ESP_LOGW(TAG_NANO, "Semaphore received for chunk %d but rx count %d < expected %d.", chunk + 1, (int)current_chunk_rx_count, (int)CHUNK_EXPECTED_BYTES);
+                             // Treat as incomplete data
+                             read_error = true;
+                             break;
+                         }
+                         ESP_LOGD(TAG_NANO, "Chunk %d data received (%d bytes). Processing and updating minimum...", chunk + 1, (int)current_chunk_rx_count);
+                         // Process this chunk's points and update the running minimum S11/Frequency
+                         if (!process_chunk_and_update_min(chunk)) {
+                             ESP_LOGE(TAG_NANO, "Error processing data for chunk %d.", chunk + 1);
+                             read_error = true;
+                             break; // Exit chunk loop on processing error
+                         }
+                         // points_processed_count is incremented inside process_chunk_and_update_min
+                     } else {
+                         ESP_LOGE(TAG_NANO, "TIMEOUT or incomplete data for chunk %d. Got %d/%d bytes.",
+                                  chunk + 1, (int)current_chunk_rx_count, (int)CHUNK_EXPECTED_BYTES);
+                         read_error = true;
+                         break; // Exit chunk loop on RX error/timeout
+                     }
+                     // Small delay between chunks? Maybe not needed if VNA/USB handles it.
+                     // vTaskDelay(pdMS_TO_TICKS(20));
+
+                 } // --- End of chunk loop ---
+
+                 // --- After attempting all chunks ---
+                 memset(ble_notify_buffer, 0, BLE_NOTIFY_BUF_SIZE); // Clear notification buffer
+
+                 if (!read_error && points_processed_count >= TOTAL_SWEEP_POINTS) {
+                     ESP_LOGI(TAG_NANO, "All %d chunks received and %d points processed successfully.", NUM_CHUNKS, (int)points_processed_count);
+                     // Check if a valid minimum was found (i.e., not still INFINITY)
+                     if (isfinite(current_min_s11_db)) {
+                         ESP_LOGI(TAG_NANO, "Overall Resonant Point Found:");
+                         ESP_LOGI(TAG_NANO, "  Frequency: %.6f MHz", freq_at_min_s11_hz / 1e6); // Increased precision
+                         ESP_LOGI(TAG_NANO, "  Min S11 Mag: %.4f dB", current_min_s11_db);      // Increased precision
+
+                         // Format notification string: "FreqGHz,MagdB" (adjust precision to fit)
+                         snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "%.6f,%.4f", // Using more precision
+                                  freq_at_min_s11_hz / 1e9, // Freq in GHz
+                                  current_min_s11_db);      // Mag in dB
+                     } else {
+                         ESP_LOGW(TAG_NANO, "Sweep completed but no valid finite S11 minimum found.");
+                         snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "Error: No finite min");
+                     }
                  } else {
-                      ESP_LOGE(TAG_NANO, "TIMEOUT or incomplete data: Failed to receive complete FIFO data within %d ms. Got %d bytes.", RX_TIMEOUT_MS, current_rx_count);
-                      // Handle timeout - maybe send error notification? Break inner loop.
-                       if (current_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-                            snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "Error: USB Timeout (%d/%d bytes)", current_rx_count, EXPECTED_RX_BYTES);
-                            struct os_mbuf *om = ble_hs_mbuf_from_flat(ble_notify_buffer, strlen(ble_notify_buffer));
-                            if (om) ble_gatts_notify_custom(current_conn_handle, gatt_chr_handle, om);
-                       }
-                      break; // Exit inner loop on timeout/incomplete data
+                      ESP_LOGE(TAG_NANO, "Failed to complete full sweep read. Error occurred or not all points processed (%d/%d).",
+                              (int)points_processed_count, TOTAL_SWEEP_POINTS);
+                      // Prepare error notification
+                      snprintf(ble_notify_buffer, BLE_NOTIFY_BUF_SIZE, "Error: Read failed (%d/%d pts)", (int)points_processed_count, TOTAL_SWEEP_POINTS);
                  }
+
+                 // Send notification (success or error message) via BLE
+                 if (current_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+                     ESP_LOGI(TAG_NANO,"Sending BLE Notification: \"%s\"", ble_notify_buffer);
+                     struct os_mbuf *om = ble_hs_mbuf_from_flat(ble_notify_buffer, strlen(ble_notify_buffer));
+                     if (om) {
+                         int rc = ble_gatts_notify_custom(current_conn_handle, gatt_chr_handle, om);
+                         if (rc != 0) {
+                             ESP_LOGE(TAG_NANO, "BLE notify failed; rc=%d", rc);
+                         }
+                     } else {
+                         ESP_LOGE(TAG_NANO,"Failed to allocate mbuf for BLE notification");
+                     }
+                 } else {
+                     ESP_LOGW(TAG_NANO,"No BLE client connected, cannot send notification.");
+                 }
+
              } // End if(xSemaphoreTake trigger)
          } // --- End of inner communication loop ---
 
-         ESP_LOGI(TAG_NANO, "NanoVNA disconnected or error occurred. Waiting for USB disconnect event to be fully processed...");
+         ESP_LOGI(TAG_NANO, "NanoVNA disconnected or error occurred in inner loop. Waiting for USB disconnect event to be fully processed...");
          // Wait until the disconnect event is processed by handle_usb_event
-         // or if we broke out early, this ensures state is clean before retry.
+         // This ensures state is clean (current_cdc_dev=NULL) before retry.
          xSemaphoreTake(device_disconnected_sem, portMAX_DELAY);
          ESP_LOGI(TAG_NANO, "Proceeding to wait for new USB connection.");
 
@@ -705,7 +843,8 @@ void app_main(void)
     ESP_LOGI(TAG_MAIN, "NimBLE Initialized and Task Started.");
 
     // --- 5. Start NanoVNA Control Task ---
-    task_created = xTaskCreate(nanovna_control_task, "nanovna_task", 6144, NULL, NANOVNA_TASK_PRIORITY, NULL); // Increased stack for processing
+    // Increased stack size for safety due to chunk processing logic/loops
+    task_created = xTaskCreate(nanovna_control_task, "nanovna_task", 8192, NULL, NANOVNA_TASK_PRIORITY, NULL);
     assert(task_created == pdTRUE);
     ESP_LOGI(TAG_MAIN, "NanoVNA Control Task Started.");
 
