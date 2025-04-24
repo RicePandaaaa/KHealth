@@ -1,10 +1,3 @@
-/**
- * ESP32 Firmware to read NanoVNA V2 data via USB Host (CDC-ACM)
- * using chunked FIFO reads, processing points on-the-fly to find
- * the resonant frequency (S11), and sending the result via BLE.
- *
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h> // For PRIu32 etc.
