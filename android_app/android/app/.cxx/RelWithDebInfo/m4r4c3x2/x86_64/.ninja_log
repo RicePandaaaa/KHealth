@@ -1,3 +1,5 @@
 # ninja log v5
 1	10202	7664813556852110	CMakeFiles/native_code.dir/native_code.c.o	5532e41fd2a13fee
 10203	10304	7664813558122173	C:/Users/antho/KHealth/android_app/build/app/intermediates/cxx/RelWithDebInfo/m4r4c3x2/obj/x86_64/libnative_code.so	56c7f603c5fef60
+0	68	7672258803033890	CMakeFiles/native_code.dir/native_code.c.o	5532e41fd2a13fee
+70	162	7672258804005080	C:/Users/antho/KHealth/android_app/build/app/intermediates/cxx/RelWithDebInfo/m4r4c3x2/obj/x86_64/libnative_code.so	56c7f603c5fef60
